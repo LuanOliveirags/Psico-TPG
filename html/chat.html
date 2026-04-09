@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conexão Consciente - Chat de Apoio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="manifest" href="../manifest.json">
+  <meta name="theme-color" content="#6C63FF">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="apple-touch-icon" href="../icons/icon-192.svg">
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="container">
+      <a href="dashboard.html" class="brand">
+        <span>🧠</span> Conexão Consciente
+      </a>
+      <button class="hamburger" id="hamburger">☰</button>
+      <div class="nav-links" id="navLinks">
+        <a href="dashboard.html">🏠 Início</a>
+        <a href="apoio.html">💚 Apoio</a>
+        <a href="quiz.html">🎯 Quiz</a>
+        <a href="chat.html" class="active">💬 Chat</a>
+        <a href="conteudo.html">📚 Conteúdo</a>
+      </div>
+      <div class="nav-actions">
+        <button class="theme-toggle" id="themeToggle" title="Alternar tema">🌙</button>
+        <div class="user-avatar" id="userAvatar">?</div>
+        <button class="btn-logout" id="btnLogout">Sair</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- CHAT -->
+  <div class="chat-container">
+    <div class="chat-header-info">
+      <h2 id="chatTitle">💬 Espaço de Escuta</h2>
+      <p id="chatSubtitle">Converse com nosso assistente de apoio</p>
+      <div class="status" id="chatStatus">Online</div>
+    </div>
+
+    <!-- Barra de ações do chat -->
+    <div class="chat-actions" id="chatActions">
+      <button class="btn-chat-action" id="btnRequestHuman" title="Falar com especialista">
+        🧑‍💼 Falar com Especialista
+      </button>
+      <button class="btn-chat-action btn-back-bot" id="btnBackToBot" title="Voltar ao assistente" style="display:none;">
+        🤖 Voltar ao Assistente
+      </button>
+    </div>
+
+    <!-- Aviso de espera -->
+    <div class="chat-waiting" id="chatWaiting" style="display:none;">
+      <div class="waiting-animation">
+        <span class="spinner"></span>
+      </div>
+      <p>Aguardando um especialista disponível...</p>
+      <button class="btn btn-outline btn-sm" id="btnCancelWait">Cancelar</button>
+    </div>
+
+    <div class="chat-messages" id="chatMessages">
+      <!-- Mensagens aparecem aqui -->
+    </div>
+
+    <div class="chat-input-area">
+      <input type="text" id="chatInput" placeholder="Digite sua mensagem..." autocomplete="off">
+      <button id="btnSend" title="Enviar">➤</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script type="module" src="../js/firebase-config.js"></script>
+  <script type="module" src="../js/chat.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('../sw.js');
+    }
+  </script>
+</body>
+</html>

@@ -8,7 +8,7 @@ import {
 // ===== AUTH CHECK =====
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
-    window.location.href = 'index.html';
+    window.location.href = '../index.html';
     return;
   }
 
@@ -18,7 +18,7 @@ onAuthStateChanged(auth, async (user) => {
     if (userDoc.exists() && userDoc.data().bloqueado) {
       await signOut(auth);
       alert('Sua conta foi bloqueada. Entre em contato com o suporte.');
-      window.location.href = 'index.html';
+      window.location.href = '../index.html';
       return;
     }
   } catch (e) { /* falha silenciosa */ }
@@ -63,11 +63,11 @@ const btnLogout = document.getElementById('btnLogout');
 if (btnLogout) {
   btnLogout.addEventListener('click', async () => {
     await signOut(auth);
-    window.location.href = 'index.html';
+    window.location.href = '../index.html';
   });
 }
 
-// ===== TOAST =====
+// ===== TOAST ===
 export function showToast(msg, type = 'success') {
   const toast = document.getElementById('toast');
   if (!toast) return;

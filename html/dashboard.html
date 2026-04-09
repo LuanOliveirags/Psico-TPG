@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conexão Consciente - Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="manifest" href="../manifest.json">
+  <meta name="theme-color" content="#6C63FF">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="apple-touch-icon" href="../icons/icon-192.svg">
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="container">
+      <a href="dashboard.html" class="brand">
+        <span>🧠</span> Conexão Consciente
+      </a>
+
+      <button class="hamburger" id="hamburger">☰</button>
+
+      <div class="nav-links" id="navLinks">
+        <a href="dashboard.html" class="active">🏠 Início</a>
+        <a href="apoio.html">💚 Apoio</a>
+        <a href="quiz.html">🎯 Quiz</a>
+        <a href="chat.html">💬 Chat</a>
+        <a href="conteudo.html">📚 Conteúdo</a>
+      </div>
+
+      <div class="nav-actions">
+        <button class="theme-toggle" id="themeToggle" title="Alternar tema">🌙</button>
+        <div class="user-avatar" id="userAvatar">?</div>
+        <button class="btn-logout" id="btnLogout">Sair</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- CONTEÚDO -->
+  <main class="container">
+    <div class="page-header fade-in">
+      <div class="greeting">
+        Olá, <span id="userName">...</span>! <span class="emoji">👋</span>
+      </div>
+      <p>Como você está se sentindo hoje? Explore as ferramentas abaixo.</p>
+    </div>
+
+    <div class="dashboard-grid">
+
+      <a href="apoio.html" class="card feature-card fade-in">
+        <div class="icon">💚</div>
+        <h3>Apoio Emocional</h3>
+        <p>Registre como você está se sentindo e receba mensagens de acolhimento.</p>
+        <span class="badge">Diário</span>
+      </a>
+
+      <a href="quiz.html" class="card feature-card fade-in">
+        <div class="icon">🎯</div>
+        <h3>Quiz Digital</h3>
+        <p>Teste seus conhecimentos sobre segurança e cidadania digital.</p>
+        <span class="badge">Interativo</span>
+      </a>
+
+      <a href="chat.html" class="card feature-card fade-in">
+        <div class="icon">💬</div>
+        <h3>Espaço de Escuta</h3>
+        <p>Converse com nosso assistente virtual sobre o que está sentindo.</p>
+        <span class="badge">24h disponível</span>
+      </a>
+
+      <a href="conteudo.html" class="card feature-card fade-in">
+        <div class="icon">📚</div>
+        <h3>Conteúdo Educativo</h3>
+        <p>Aprenda sobre cyberbullying, privacidade, autoestima e muito mais.</p>
+        <span class="badge">Aprenda</span>
+      </a>
+
+      <div class="card feature-card fade-in" id="statsCard">
+        <div class="icon">📊</div>
+        <h3>Seu Progresso</h3>
+        <p>Veja seu histórico de emoções e atividades realizadas.</p>
+        <div style="margin-top: 16px; text-align: left;">
+          <div style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom: 8px;">
+            <span>Registros emocionais:</span>
+            <strong id="statEmotions">0</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom: 8px;">
+            <span>Quizzes feitos:</span>
+            <strong id="statQuizzes">0</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:0.85rem;">
+            <span>Mensagens no chat:</span>
+            <strong id="statMessages">0</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="card feature-card fade-in">
+        <div class="icon">🌟</div>
+        <h3>Dica do Dia</h3>
+        <p id="dailyTip">Carregando dica...</p>
+        <span class="badge">Reflexão</span>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script type="module" src="../js/firebase-config.js"></script>
+  <script type="module" src="../js/app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('../sw.js');
+    }
+  </script>
+</body>
+</html>

@@ -24,7 +24,7 @@ const registerError = document.getElementById('registerError');
 // Se já estiver logado, redireciona
 onAuthStateChanged(auth, (user) => {
   if (user) {
-    window.location.href = 'dashboard.html';
+    window.location.href = 'html/dashboard.html';
   }
 });
 
@@ -61,7 +61,7 @@ btnLogin.addEventListener('click', async () => {
 
   try {
     await signInWithEmailAndPassword(auth, email, password);
-    window.location.href = 'dashboard.html';
+    window.location.href = 'html/dashboard.html';
   } catch (error) {
     const msgs = {
       'auth/user-not-found': 'Usuário não encontrado.',
@@ -111,7 +111,7 @@ btnRegister.addEventListener('click', async () => {
       criadoEm: serverTimestamp()
     });
 
-    window.location.href = 'dashboard.html';
+    window.location.href = 'html/dashboard.html';
   } catch (error) {
     console.error('Erro no cadastro:', error.code, error.message);
     const msgs = {

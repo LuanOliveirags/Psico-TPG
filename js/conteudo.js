@@ -6,7 +6,7 @@ import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase
 // ===== AUTH CHECK =====
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
-    window.location.href = 'index.html';
+    window.location.href = '../index.html';
     return;
   }
   await loadUserInfo(user);
@@ -45,7 +45,7 @@ const btnLogout = document.getElementById('btnLogout');
 if (btnLogout) {
   btnLogout.addEventListener('click', async () => {
     await signOut(auth);
-    window.location.href = 'index.html';
+    window.location.href = '../index.html';
   });
 }
 
