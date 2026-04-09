@@ -124,8 +124,7 @@ async function checkActiveRoom(uid) {
 function listenToQueue() {
   const q = query(
     collection(db, 'chatRooms'),
-    where('status', '==', 'waiting'),
-    orderBy('criadoEm', 'asc')
+    where('status', '==', 'waiting')
   );
 
   unsubQueue = onSnapshot(q, (snapshot) => {
@@ -140,7 +139,14 @@ function listenToQueue() {
 
     queueEmpty.style.display = 'none';
 
-    snapshot.forEach(docSnap => {
+    // Ordenar client-side por data de criação
+    const docs = snapshot.docs.slice().sort((a, b) => {
+      const tA = a.data().criadoEm?.toMillis?.() || 0;
+      const tB = b.data().criadoEm?.toMillis?.() || 0;
+      return tA - tB;
+    });
+
+    docs.forEach(docSnap => {
       const data = docSnap.data();
       const item = document.createElement('div');
       item.className = 'queue-item';
@@ -167,6 +173,8 @@ function listenToQueue() {
     queueList.querySelectorAll('.btn-accept').forEach(btn => {
       btn.addEventListener('click', () => acceptRoom(btn.dataset.roomId));
     });
+  }, (error) => {
+    console.error('Erro ao ouvir fila:', error);
   });
 }
 
