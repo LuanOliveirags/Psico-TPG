@@ -825,6 +825,56 @@ a {
   font-weight: 500;
 }
 
+/* Overlay de conversa encerrada */
+.chat-ended-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255,255,255,0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  border-radius: 16px;
+  animation: fadeIn 0.3s ease;
+}
+
+[data-theme="dark"] .chat-ended-overlay {
+  background: rgba(22,33,62,0.95);
+}
+
+.chat-ended-card {
+  text-align: center;
+  padding: 32px;
+}
+
+.chat-ended-icon {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 12px;
+}
+
+.chat-ended-card h3 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--text);
+}
+
+.chat-ended-card p {
+  color: var(--text-light);
+  font-size: 0.9rem;
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+.chat-ended-card .btn {
+  padding: 12px 28px;
+}
+}
+
 .chat-messages {
   flex: 1;
   overflow-y: auto;

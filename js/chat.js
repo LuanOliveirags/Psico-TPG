@@ -296,8 +296,7 @@ function listenToRoom(roomId) {
     }
 
     if (data.status === 'closed') {
-      addSystemMessage('O atendimento foi encerrado pelo especialista.');
-      cleanupAndBackToBot();
+      showEndedOverlay();
     }
   });
 }
@@ -356,6 +355,41 @@ function cleanupAndBackToBot() {
   chatMessages.innerHTML = '';
   updateUIForMode('bot');
   addBotMessage('Olá! 💜 Eu sou o assistente do Conexão Consciente. Estou aqui pra te ouvir. Como você está se sentindo hoje?');
+}
+
+// ===== AVISO DE CONVERSA ENCERRADA =====
+function showEndedOverlay() {
+  // Parar de ouvir mensagens e sala
+  if (unsubMessages) { unsubMessages(); unsubMessages = null; }
+  if (unsubRoom) { unsubRoom(); unsubRoom = null; }
+  activeRoomId = null;
+
+  // Desabilitar input
+  chatInput.disabled = true;
+  btnSend.disabled = true;
+
+  // Criar overlay sobre o chat
+  const overlay = document.createElement('div');
+  overlay.className = 'chat-ended-overlay';
+  overlay.innerHTML = `
+    <div class="chat-ended-card">
+      <span class="chat-ended-icon">💜</span>
+      <h3>Conversa finalizada</h3>
+      <p>O especialista encerrou o atendimento.<br>Esperamos ter ajudado!</p>
+      <button class="btn btn-primary" id="btnBackAfterEnd">Voltar ao Assistente</button>
+    </div>
+  `;
+
+  const chatContainer = chatMessages.parentElement;
+  chatContainer.style.position = 'relative';
+  chatContainer.appendChild(overlay);
+
+  document.getElementById('btnBackAfterEnd').addEventListener('click', () => {
+    overlay.remove();
+    chatMessages.innerHTML = '';
+    updateUIForMode('bot');
+    addBotMessage('Olá! 💜 Eu sou o assistente do Conexão Consciente. Estou aqui pra te ouvir. Como você está se sentindo hoje?');
+  });
 }
 
 // ===== CANCELAR ESPERA =====
