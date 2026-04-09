@@ -1,22 +1,22 @@
 const CACHE_NAME = 'conexao-consciente-v1';
 const STATIC_ASSETS = [
-  '/',
-  '/index.html',
-  '/dashboard.html',
-  '/chat.html',
-  '/apoio.html',
-  '/quiz.html',
-  '/conteudo.html',
-  '/css/style.css',
-  '/js/firebase-config.js',
-  '/js/auth.js',
-  '/js/app.js',
-  '/js/chat.js',
-  '/js/apoio.js',
-  '/js/quiz.js',
-  '/js/conteudo.js',
-  '/icons/icon-192.svg',
-  '/icons/icon-512.svg'
+  './',
+  'index.html',
+  'dashboard.html',
+  'chat.html',
+  'apoio.html',
+  'quiz.html',
+  'conteudo.html',
+  'css/style.css',
+  'js/firebase-config.js',
+  'js/auth.js',
+  'js/app.js',
+  'js/chat.js',
+  'js/apoio.js',
+  'js/quiz.js',
+  'js/conteudo.js',
+  'icons/icon-192.svg',
+  'icons/icon-512.svg'
 ];
 
 // Instalar — cachear assets estáticos
@@ -69,7 +69,7 @@ self.addEventListener('fetch', (event) => {
           if (cached) return cached;
           // Fallback para navegação: mostrar index
           if (request.mode === 'navigate') {
-            return caches.match('/index.html');
+            return caches.match('index.html');
           }
         });
       })
