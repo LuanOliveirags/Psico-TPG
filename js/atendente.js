@@ -27,7 +27,7 @@ onAuthStateChanged(auth, async (user) => {
       <div class="card" style="text-align:center; padding:48px; grid-column:1/-1;">
         <span style="font-size:3rem;">🚫</span>
         <h3 style="margin:16px 0 8px;">Acesso Restrito</h3>
-        <p style="color:var(--text-light);">Você não tem permissão de atendente. Entre em contato com o administrador.</p>
+        <p style="color:var(--text-light);">Você não tem permissão de especialista. Entre em contato com o administrador.</p>
         <a href="dashboard.html" class="btn btn-primary" style="margin-top:20px;">Voltar ao Início</a>
       </div>
     `;
@@ -177,7 +177,7 @@ async function acceptRoom(roomId) {
   try {
     await updateDoc(doc(db, 'chatRooms', roomId), {
       atendenteId: currentUser.uid,
-      atendenteName: currentUserData.nome || 'Atendente',
+      atendenteName: currentUserData.nome || 'Especialista',
       status: 'active'
     });
 
@@ -267,7 +267,7 @@ async function sendMessage() {
   try {
     await addDoc(collection(db, 'chatRooms', activeRoomId, 'messages'), {
       senderId: currentUser.uid,
-      senderName: currentUserData?.nome || 'Atendente',
+      senderName: currentUserData?.nome || 'Especialista',
       mensagem: text,
       data: serverTimestamp()
     });
@@ -285,7 +285,7 @@ async function closeRoom() {
     await addDoc(collection(db, 'chatRooms', activeRoomId, 'messages'), {
       senderId: 'system',
       senderName: 'Sistema',
-      mensagem: 'O atendente encerrou a conversa. Obrigado pelo contato! 💜',
+      mensagem: 'O especialista encerrou a conversa. Obrigado pelo contato! 💜',
       data: serverTimestamp()
     });
 

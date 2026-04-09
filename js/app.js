@@ -2,7 +2,7 @@
 import { auth, db } from './firebase-config.js';
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import {
-  doc, getDoc, setDoc, collection, query, where, getDocs, orderBy, limit, serverTimestamp
+  doc, getDoc, setDoc, collection, query, where, getDocs, orderBy, limit, serverTimestamp, onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 // ===== AUTH CHECK =====
@@ -87,6 +87,34 @@ function addNavLink(href, text) {
   }
 }
 
+// ===== NOTIFICAÇÃO EM TEMPO REAL PARA ESPECIALISTAS =====
+function listenToWaitingRooms() {
+  const q = query(
+    collection(db, 'chatRooms'),
+    where('status', '==', 'waiting')
+  );
+
+  onSnapshot(q, (snapshot) => {
+    const count = snapshot.size;
+    const navLinksEl = document.getElementById('navLinks');
+    if (!navLinksEl) return;
+
+    const link = navLinksEl.querySelector('a[href="atendente.html"]');
+    if (!link) return;
+
+    // Remover badge anterior
+    const oldBadge = link.querySelector('.nav-badge');
+    if (oldBadge) oldBadge.remove();
+
+    if (count > 0) {
+      const badge = document.createElement('span');
+      badge.className = 'nav-badge';
+      badge.textContent = count;
+      link.appendChild(badge);
+    }
+  });
+}
+
 // ===== DASHBOARD INIT =====
 async function initDashboard(user) {
   // Carregar nome do usuário
@@ -102,7 +130,8 @@ async function initDashboard(user) {
       if (userAvatar) userAvatar.textContent = firstName.charAt(0).toUpperCase();
       // Mostrar link do painel de atendente se for atendente
       if (data.role === 'atendente') {
-        addNavLink('atendente.html', '🧑‍💼 Atendente');
+        addNavLink('atendente.html', '🧑‍💼 Especialista');
+        listenToWaitingRooms();
       }
     } else {
       // Documento não existe — criar automaticamente

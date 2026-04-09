@@ -112,7 +112,35 @@ function addNavLink(href, text) {
 }
 
 function showAtendenteLink() {
-  addNavLink('atendente.html', '🧑‍💼 Atendente');
+  addNavLink('atendente.html', '🧑‍💼 Especialista');
+  listenToWaitingRooms();
+}
+
+// ===== NOTIFICAÇÃO EM TEMPO REAL PARA ESPECIALISTAS =====
+function listenToWaitingRooms() {
+  const q = query(
+    collection(db, 'chatRooms'),
+    where('status', '==', 'waiting')
+  );
+
+  onSnapshot(q, (snapshot) => {
+    const count = snapshot.size;
+    const navLinksEl = document.getElementById('navLinks');
+    if (!navLinksEl) return;
+
+    const link = navLinksEl.querySelector('a[href="atendente.html"]');
+    if (!link) return;
+
+    const oldBadge = link.querySelector('.nav-badge');
+    if (oldBadge) oldBadge.remove();
+
+    if (count > 0) {
+      const badge = document.createElement('span');
+      badge.className = 'nav-badge';
+      badge.textContent = count;
+      link.appendChild(badge);
+    }
+  });
 }
 
 // ===== ELEMENTOS DO CHAT =====
@@ -173,7 +201,7 @@ function updateUIForMode(mode) {
     btnSend.disabled = false;
   } else if (mode === 'waiting') {
     chatTitle.textContent = '🧑‍💼 Atendimento Humano';
-    chatSubtitle.textContent = 'Aguardando um atendente...';
+    chatSubtitle.textContent = 'Aguardando um especialista...';
     chatStatusEl.textContent = 'Aguardando';
     chatStatusEl.className = 'status waiting';
     btnRequestHuman.style.display = 'none';
@@ -183,7 +211,7 @@ function updateUIForMode(mode) {
     btnSend.disabled = true;
   } else if (mode === 'human') {
     chatTitle.textContent = '🧑‍💼 Atendimento Humano';
-    chatSubtitle.textContent = 'Você está conversando com um atendente';
+    chatSubtitle.textContent = 'Você está conversando com um especialista';
     chatStatusEl.textContent = 'Conectado';
     chatStatusEl.className = 'status';
     btnRequestHuman.style.display = 'none';
@@ -241,8 +269,8 @@ async function requestHumanAttendant() {
     updateUIForMode('waiting');
     listenToRoom(activeRoomId);
   } catch (err) {
-    console.error('Erro ao solicitar atendente:', err);
-    addSystemMessage('Erro ao solicitar atendente. Tente novamente.');
+    console.error('Erro ao solicitar especialista:', err);
+    addSystemMessage('Erro ao solicitar especialista. Tente novamente.');
   }
 }
 
@@ -263,12 +291,12 @@ function listenToRoom(roomId) {
     if (data.status === 'active' && chatMode !== 'human') {
       updateUIForMode('human');
       chatMessages.innerHTML = '';
-      addSystemMessage(`${data.atendenteName || 'Atendente'} entrou na conversa`);
+      addSystemMessage(`${data.atendenteName || 'Especialista'} entrou na conversa`);
       listenToRoomMessages(roomId);
     }
 
     if (data.status === 'closed') {
-      addSystemMessage('O atendimento foi encerrado pelo atendente.');
+      addSystemMessage('O atendimento foi encerrado pelo especialista.');
       cleanupAndBackToBot();
     }
   });
