@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conexão Consciente - Painel Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="container">
+      <a href="dashboard.html" class="brand">
+        <span>🧠</span> Conexão Consciente
+      </a>
+      <button class="hamburger" id="hamburger">☰</button>
+      <div class="nav-links" id="navLinks">
+        <a href="dashboard.html">🏠 Início</a>
+        <a href="apoio.html">💚 Apoio</a>
+        <a href="quiz.html">🎯 Quiz</a>
+        <a href="chat.html">💬 Chat</a>
+        <a href="conteudo.html">📚 Conteúdo</a>
+        <a href="admin.html" class="active">⚙️ Admin</a>
+      </div>
+      <div class="nav-actions">
+        <button class="theme-toggle" id="themeToggle" title="Alternar tema">🌙</button>
+        <div class="user-avatar" id="userAvatar">?</div>
+        <button class="btn-logout" id="btnLogout">Sair</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- PAINEL ADMIN -->
+  <main class="container">
+    <div class="page-header fade-in">
+      <h2>⚙️ Painel de Administração</h2>
+      <p>Gerencie os usuários, permissões e segurança da plataforma</p>
+    </div>
+
+    <!-- STATS -->
+    <div class="admin-stats-grid" id="adminStats">
+      <div class="admin-stat-card card">
+        <span class="admin-stat-icon">👥</span>
+        <div class="admin-stat-value" id="statTotalUsers">0</div>
+        <div class="admin-stat-label">Total de Usuários</div>
+      </div>
+      <div class="admin-stat-card card">
+        <span class="admin-stat-icon">🧑‍💼</span>
+        <div class="admin-stat-value" id="statAtendentes">0</div>
+        <div class="admin-stat-label">Atendentes</div>
+      </div>
+      <div class="admin-stat-card card">
+        <span class="admin-stat-icon">🛡️</span>
+        <div class="admin-stat-value" id="statAdmins">0</div>
+        <div class="admin-stat-label">Admins</div>
+      </div>
+      <div class="admin-stat-card card">
+        <span class="admin-stat-icon">🚫</span>
+        <div class="admin-stat-value" id="statBloqueados">0</div>
+        <div class="admin-stat-label">Bloqueados</div>
+      </div>
+    </div>
+
+    <!-- FILTROS + BUSCA -->
+    <div class="admin-toolbar">
+      <input type="text" id="searchUsers" placeholder="🔍 Buscar por nome ou e-mail..." autocomplete="off">
+      <div class="admin-filters">
+        <button class="admin-filter-btn active" data-filter="todos">Todos</button>
+        <button class="admin-filter-btn" data-filter="admin">Admins</button>
+        <button class="admin-filter-btn" data-filter="atendente">Atendentes</button>
+        <button class="admin-filter-btn" data-filter="usuario">Usuários</button>
+        <button class="admin-filter-btn" data-filter="bloqueado">Bloqueados</button>
+      </div>
+    </div>
+
+    <!-- LISTA DE USUÁRIOS -->
+    <div class="admin-users-list" id="usersList">
+      <div class="loading" id="usersLoading">
+        <span class="spinner"></span> Carregando usuários...
+      </div>
+    </div>
+  </main>
+
+  <!-- MODAL DE DETALHES DO USUÁRIO -->
+  <div class="admin-modal" id="userModal">
+    <div class="modal-content">
+      <button class="modal-close" id="modalClose">✕</button>
+      <div class="modal-header" id="modalHeader">
+        <!-- Preenchido via JS -->
+      </div>
+      <div class="modal-body" id="modalBody">
+        <!-- Preenchido via JS -->
+      </div>
+      <div class="modal-actions" id="modalActions">
+        <!-- Preenchido via JS -->
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script type="module" src="js/firebase-config.js"></script>
+  <script type="module" src="js/admin.js"></script>
+</body>
+</html>

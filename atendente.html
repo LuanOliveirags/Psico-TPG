@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conexão Consciente - Painel do Atendente</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="container">
+      <a href="dashboard.html" class="brand">
+        <span>🧠</span> Conexão Consciente
+      </a>
+      <button class="hamburger" id="hamburger">☰</button>
+      <div class="nav-links" id="navLinks">
+        <a href="dashboard.html">🏠 Início</a>
+        <a href="apoio.html">💚 Apoio</a>
+        <a href="quiz.html">🎯 Quiz</a>
+        <a href="chat.html">💬 Chat</a>
+        <a href="conteudo.html">📚 Conteúdo</a>
+        <a href="atendente.html" class="active">🧑‍💼 Atendente</a>
+      </div>
+      <div class="nav-actions">
+        <button class="theme-toggle" id="themeToggle" title="Alternar tema">🌙</button>
+        <div class="user-avatar" id="userAvatar">?</div>
+        <button class="btn-logout" id="btnLogout">Sair</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- PAINEL DO ATENDENTE -->
+  <div class="container">
+    <div class="page-header">
+      <h2>🧑‍💼 Painel do Atendente</h2>
+      <p>Gerencie os atendimentos e converse com os usuários</p>
+    </div>
+
+    <div class="atendente-layout">
+      <!-- FILA DE ESPERA -->
+      <div class="atendente-queue card">
+        <h3>📋 Fila de Espera</h3>
+        <p class="queue-info">Usuários aguardando atendimento</p>
+        <div class="queue-list" id="queueList">
+          <div class="queue-empty" id="queueEmpty">
+            <span>😊</span>
+            <p>Nenhum usuário na fila</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- CHAT DO ATENDENTE -->
+      <div class="atendente-chat card" id="atendenteChat" style="display:none;">
+        <div class="atendente-chat-header">
+          <div>
+            <h3 id="chatUserName">Usuário</h3>
+            <span class="chat-room-status" id="chatRoomStatus">Ativo</span>
+          </div>
+          <button class="btn btn-outline btn-sm" id="btnCloseRoom">Encerrar</button>
+        </div>
+
+        <div class="chat-messages atendente-messages" id="atendenteChatMessages">
+          <!-- Mensagens aparecem aqui -->
+        </div>
+
+        <div class="chat-input-area">
+          <input type="text" id="atendenteInput" placeholder="Digite sua mensagem..." autocomplete="off">
+          <button id="btnAtendenteSend" title="Enviar">➤</button>
+        </div>
+      </div>
+
+      <!-- Placeholder quando não há chat ativo -->
+      <div class="atendente-chat-placeholder card" id="chatPlaceholder">
+        <span>💬</span>
+        <h3>Selecione um atendimento</h3>
+        <p>Aceite um usuário da fila para iniciar a conversa</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script type="module" src="js/firebase-config.js"></script>
+  <script type="module" src="js/atendente.js"></script>
+</body>
+</html>

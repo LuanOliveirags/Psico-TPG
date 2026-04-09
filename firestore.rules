@@ -1,0 +1,115 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===== FUNÇÕES AUXILIARES =====
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && (
+        request.auth.token.email == 'luanoliveirags@gmail.com' ||
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'
+      );
+    }
+
+    function isNotBlocked() {
+      return !exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('bloqueado', false) == false;
+    }
+
+    function isAtendente() {
+      return isAuthenticated() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'atendente';
+    }
+
+    function isRoomParticipant(roomData) {
+      return request.auth.uid == roomData.userId || request.auth.uid == roomData.atendenteId;
+    }
+
+    // ===== USERS =====
+    match /users/{userId} {
+      // Admin pode ler, atualizar e excluir qualquer usuário
+      allow read: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+
+      // Cada usuário pode ler e criar seu próprio documento
+      allow read: if isAuthenticated() && isOwner(userId);
+      allow create: if isAuthenticated() && isOwner(userId);
+      // Próprio usuário pode atualizar, mas NÃO pode alterar 'role' ou 'bloqueado'
+      allow update: if isAuthenticated() && isOwner(userId)
+        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'bloqueado']));
+      // Atendentes podem ler nomes de outros usuários
+      allow read: if isAtendente();
+    }
+
+    // ===== EMOCIONAL =====
+    match /emocional/{docId} {
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+    }
+
+    // ===== QUIZ =====
+    match /quiz/{docId} {
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+    }
+
+    // ===== MENSAGENS (bot) =====
+    match /mensagens/{docId} {
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+    }
+
+    // ===== CHAT ROOMS =====
+    match /chatRooms/{roomId} {
+      // Qualquer usuário autenticado pode criar uma sala (status deve ser 'waiting')
+      allow create: if isAuthenticated()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.status == 'waiting';
+
+      // O dono da sala pode ler sua sala
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+
+      // Atendentes podem ler todas as salas (para ver a fila)
+      allow read: if isAtendente();
+
+      // Atendentes podem aceitar uma sala waiting (mudar status para active e definir atendenteId)
+      allow update: if isAtendente()
+        && resource.data.status == 'waiting'
+        && request.resource.data.status == 'active'
+        && request.resource.data.atendenteId == request.auth.uid;
+
+      // Participantes da sala podem encerrar (mudar status para closed)
+      allow update: if isAuthenticated()
+        && isRoomParticipant(resource.data)
+        && request.resource.data.status == 'closed';
+
+      // O dono pode deletar sua sala (cancelar espera)
+      allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+
+      // ===== MESSAGES (subcollection) =====
+      match /messages/{msgId} {
+        // Participantes da sala podem ler mensagens
+        allow read: if isAuthenticated()
+          && isRoomParticipant(get(/databases/$(database)/documents/chatRooms/$(roomId)).data);
+
+        // Participantes da sala podem enviar mensagens (senderId deve ser o próprio)
+        allow create: if isAuthenticated()
+          && isRoomParticipant(get(/databases/$(database)/documents/chatRooms/$(roomId)).data)
+          && request.resource.data.senderId == request.auth.uid;
+
+        // Sistema pode enviar mensagens (atendente envia msg de encerramento com senderId 'system')
+        allow create: if isAtendente()
+          && get(/databases/$(database)/documents/chatRooms/$(roomId)).data.atendenteId == request.auth.uid;
+      }
+    }
+  }
+}

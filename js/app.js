@@ -2,7 +2,7 @@
 import { auth, db } from './firebase-config.js';
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import {
-  doc, getDoc, collection, query, where, getDocs, orderBy, limit
+  doc, getDoc, setDoc, collection, query, where, getDocs, orderBy, limit, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 // ===== AUTH CHECK =====
@@ -11,6 +11,18 @@ onAuthStateChanged(auth, async (user) => {
     window.location.href = 'index.html';
     return;
   }
+
+  // Verificar se está bloqueado
+  try {
+    const userDoc = await getDoc(doc(db, 'users', user.uid));
+    if (userDoc.exists() && userDoc.data().bloqueado) {
+      await signOut(auth);
+      alert('Sua conta foi bloqueada. Entre em contato com o suporte.');
+      window.location.href = 'index.html';
+      return;
+    }
+  } catch (e) { /* falha silenciosa */ }
+
   await initDashboard(user);
 });
 
@@ -64,6 +76,17 @@ export function showToast(msg, type = 'success') {
   setTimeout(() => toast.classList.remove('show'), 3500);
 }
 
+// ===== ADICIONAR LINK NA NAVBAR =====
+function addNavLink(href, text) {
+  const navLinksEl = document.getElementById('navLinks');
+  if (navLinksEl && !navLinksEl.querySelector(`a[href="${href}"]`)) {
+    const link = document.createElement('a');
+    link.href = href;
+    link.textContent = text;
+    navLinksEl.appendChild(link);
+  }
+}
+
 // ===== DASHBOARD INIT =====
 async function initDashboard(user) {
   // Carregar nome do usuário
@@ -77,13 +100,32 @@ async function initDashboard(user) {
       const firstName = data.nome.split(' ')[0];
       if (userName) userName.textContent = firstName;
       if (userAvatar) userAvatar.textContent = firstName.charAt(0).toUpperCase();
+      // Mostrar link do painel de atendente se for atendente
+      if (data.role === 'atendente') {
+        addNavLink('atendente.html', '🧑‍💼 Atendente');
+      }
     } else {
-      if (userName) userName.textContent = 'Usuário';
-      if (userAvatar) userAvatar.textContent = 'U';
+      // Documento não existe — criar automaticamente
+      const displayName = user.displayName || user.email.split('@')[0];
+      await setDoc(doc(db, 'users', user.uid), {
+        nome: displayName,
+        email: user.email,
+        idade: 0,
+        perfil: 'outro',
+        criadoEm: serverTimestamp()
+      });
+      if (userName) userName.textContent = displayName.split(' ')[0];
+      if (userAvatar) userAvatar.textContent = displayName.charAt(0).toUpperCase();
     }
-  } catch {
+  } catch (err) {
+    console.error('Erro ao carregar dados do usuário:', err);
     if (userName) userName.textContent = 'Usuário';
     if (userAvatar) userAvatar.textContent = 'U';
+  }
+
+  // Mostrar link do painel admin (usa auth, não precisa do Firestore)
+  if (user.email === 'luanoliveirags@gmail.com') {
+    addNavLink('admin.html', '⚙️ Admin');
   }
 
   // Carregar estatísticas

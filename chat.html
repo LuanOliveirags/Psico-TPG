@@ -35,9 +35,28 @@
   <!-- CHAT -->
   <div class="chat-container">
     <div class="chat-header-info">
-      <h2>💬 Espaço de Escuta</h2>
-      <p>Converse com nosso assistente de apoio</p>
-      <div class="status">Online</div>
+      <h2 id="chatTitle">💬 Espaço de Escuta</h2>
+      <p id="chatSubtitle">Converse com nosso assistente de apoio</p>
+      <div class="status" id="chatStatus">Online</div>
+    </div>
+
+    <!-- Barra de ações do chat -->
+    <div class="chat-actions" id="chatActions">
+      <button class="btn-chat-action" id="btnRequestHuman" title="Falar com atendente humano">
+        🧑‍💼 Falar com Atendente
+      </button>
+      <button class="btn-chat-action btn-back-bot" id="btnBackToBot" title="Voltar ao assistente" style="display:none;">
+        🤖 Voltar ao Assistente
+      </button>
+    </div>
+
+    <!-- Aviso de espera -->
+    <div class="chat-waiting" id="chatWaiting" style="display:none;">
+      <div class="waiting-animation">
+        <span class="spinner"></span>
+      </div>
+      <p>Aguardando um atendente disponível...</p>
+      <button class="btn btn-outline btn-sm" id="btnCancelWait">Cancelar</button>
     </div>
 
     <div class="chat-messages" id="chatMessages">

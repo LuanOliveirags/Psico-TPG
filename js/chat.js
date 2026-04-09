@@ -1,11 +1,18 @@
-// ===== CHAT.JS - Espaço de Escuta com respostas automáticas =====
+// ===== CHAT.JS - Espaço de Escuta com bot + atendente humano =====
 import { auth, db } from './firebase-config.js';
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import {
-  doc, getDoc, addDoc, collection, query, where, orderBy, limit, getDocs, serverTimestamp
+  doc, getDoc, setDoc, addDoc, updateDoc, deleteDoc,
+  collection, query, where, orderBy, limit, getDocs,
+  onSnapshot, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 let currentUser = null;
+let currentUserData = null;
+let chatMode = 'bot'; // 'bot' | 'waiting' | 'human'
+let activeRoomId = null;
+let unsubMessages = null;
+let unsubRoom = null;
 
 // ===== AUTH CHECK =====
 onAuthStateChanged(auth, async (user) => {
@@ -13,10 +20,24 @@ onAuthStateChanged(auth, async (user) => {
     window.location.href = 'index.html';
     return;
   }
+
+  // Verificar se está bloqueado
+  try {
+    const blockDoc = await getDoc(doc(db, 'users', user.uid));
+    if (blockDoc.exists() && blockDoc.data().bloqueado) {
+      await signOut(auth);
+      alert('Sua conta foi bloqueada. Entre em contato com o suporte.');
+      window.location.href = 'index.html';
+      return;
+    }
+  } catch (e) { /* falha silenciosa */ }
+
   currentUser = user;
   await loadUserInfo(user);
-  await loadChatHistory(user.uid);
-  addBotMessage('Olá! 💜 Eu sou o assistente do Conexão Consciente. Estou aqui pra te ouvir. Como você está se sentindo hoje?');
+  await checkExistingRoom(user.uid);
+  if (chatMode === 'bot') {
+    addBotMessage('Olá! 💜 Eu sou o assistente do Conexão Consciente. Estou aqui pra te ouvir. Como você está se sentindo hoje?');
+  }
 });
 
 // ===== SHARED: Theme, Hamburger, Logout =====
@@ -62,18 +83,49 @@ async function loadUserInfo(user) {
   try {
     const userDoc = await getDoc(doc(db, 'users', user.uid));
     if (userDoc.exists()) {
-      const data = userDoc.data();
-      if (userAvatar) userAvatar.textContent = data.nome.charAt(0).toUpperCase();
+      currentUserData = userDoc.data();
+      if (userAvatar) userAvatar.textContent = currentUserData.nome.charAt(0).toUpperCase();
+      // Mostrar link do painel de atendente se for atendente
+      if (currentUserData.role === 'atendente') {
+        showAtendenteLink();
+      }
     }
-  } catch {
+  } catch (err) {
+    console.error('Erro ao carregar dados do usuário:', err);
     if (userAvatar) userAvatar.textContent = 'U';
   }
+
+  // Mostrar link do painel admin (usa auth, não depende do Firestore)
+  if (user.email === 'luanoliveirags@gmail.com') {
+    addNavLink('admin.html', '⚙️ Admin');
+  }
+}
+
+function addNavLink(href, text) {
+  const navLinksEl = document.getElementById('navLinks');
+  if (navLinksEl && !navLinksEl.querySelector(`a[href="${href}"]`)) {
+    const link = document.createElement('a');
+    link.href = href;
+    link.textContent = text;
+    navLinksEl.appendChild(link);
+  }
+}
+
+function showAtendenteLink() {
+  addNavLink('atendente.html', '🧑‍💼 Atendente');
 }
 
 // ===== ELEMENTOS DO CHAT =====
 const chatMessages = document.getElementById('chatMessages');
 const chatInput = document.getElementById('chatInput');
 const btnSend = document.getElementById('btnSend');
+const chatTitle = document.getElementById('chatTitle');
+const chatSubtitle = document.getElementById('chatSubtitle');
+const chatStatusEl = document.getElementById('chatStatus');
+const btnRequestHuman = document.getElementById('btnRequestHuman');
+const btnBackToBot = document.getElementById('btnBackToBot');
+const chatWaiting = document.getElementById('chatWaiting');
+const btnCancelWait = document.getElementById('btnCancelWait');
 
 // ===== ADICIONAR MENSAGEM NA TELA =====
 function addMessage(text, type = 'bot') {
@@ -83,7 +135,8 @@ function addMessage(text, type = 'bot') {
   const now = new Date();
   const time = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
-  msgDiv.innerHTML = `${text}<span class="time">${time}</span>`;
+  const sanitized = text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  msgDiv.innerHTML = `${sanitized}<span class="time">${time}</span>`;
   chatMessages.appendChild(msgDiv);
   chatMessages.scrollTop = chatMessages.scrollHeight;
 }
@@ -94,6 +147,197 @@ function addBotMessage(text) {
 
 function addUserMessage(text) {
   addMessage(text, 'user');
+}
+
+function addSystemMessage(text) {
+  const msgDiv = document.createElement('div');
+  msgDiv.className = 'chat-msg system';
+  msgDiv.textContent = text;
+  chatMessages.appendChild(msgDiv);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+// ===== ATUALIZAR UI POR MODO =====
+function updateUIForMode(mode) {
+  chatMode = mode;
+
+  if (mode === 'bot') {
+    chatTitle.textContent = '💬 Espaço de Escuta';
+    chatSubtitle.textContent = 'Converse com nosso assistente de apoio';
+    chatStatusEl.textContent = 'Online';
+    chatStatusEl.className = 'status';
+    btnRequestHuman.style.display = '';
+    btnBackToBot.style.display = 'none';
+    chatWaiting.style.display = 'none';
+    chatInput.disabled = false;
+    btnSend.disabled = false;
+  } else if (mode === 'waiting') {
+    chatTitle.textContent = '🧑‍💼 Atendimento Humano';
+    chatSubtitle.textContent = 'Aguardando um atendente...';
+    chatStatusEl.textContent = 'Aguardando';
+    chatStatusEl.className = 'status waiting';
+    btnRequestHuman.style.display = 'none';
+    btnBackToBot.style.display = '';
+    chatWaiting.style.display = 'flex';
+    chatInput.disabled = true;
+    btnSend.disabled = true;
+  } else if (mode === 'human') {
+    chatTitle.textContent = '🧑‍💼 Atendimento Humano';
+    chatSubtitle.textContent = 'Você está conversando com um atendente';
+    chatStatusEl.textContent = 'Conectado';
+    chatStatusEl.className = 'status';
+    btnRequestHuman.style.display = 'none';
+    btnBackToBot.style.display = '';
+    chatWaiting.style.display = 'none';
+    chatInput.disabled = false;
+    btnSend.disabled = false;
+  }
+}
+
+// ===== VERIFICAR SALA EXISTENTE =====
+async function checkExistingRoom(uid) {
+  try {
+    const q = query(
+      collection(db, 'chatRooms'),
+      where('userId', '==', uid),
+      where('status', 'in', ['waiting', 'active'])
+    );
+    const snapshot = await getDocs(q);
+    if (!snapshot.empty) {
+      const roomDoc = snapshot.docs[0];
+      activeRoomId = roomDoc.id;
+      const roomData = roomDoc.data();
+
+      if (roomData.status === 'waiting') {
+        updateUIForMode('waiting');
+        listenToRoom(activeRoomId);
+      } else if (roomData.status === 'active') {
+        updateUIForMode('human');
+        listenToRoomMessages(activeRoomId);
+        listenToRoom(activeRoomId);
+      }
+    }
+  } catch {
+    // Sem sala ativa
+  }
+}
+
+// ===== SOLICITAR ATENDENTE HUMANO =====
+async function requestHumanAttendant() {
+  if (!currentUser) return;
+
+  try {
+    const roomRef = await addDoc(collection(db, 'chatRooms'), {
+      userId: currentUser.uid,
+      userName: currentUserData?.nome || 'Usuário',
+      atendenteId: null,
+      atendenteName: null,
+      status: 'waiting',
+      criadoEm: serverTimestamp()
+    });
+
+    activeRoomId = roomRef.id;
+    chatMessages.innerHTML = '';
+    updateUIForMode('waiting');
+    listenToRoom(activeRoomId);
+  } catch (err) {
+    console.error('Erro ao solicitar atendente:', err);
+    addSystemMessage('Erro ao solicitar atendente. Tente novamente.');
+  }
+}
+
+// ===== OUVIR MUDANÇAS NA SALA =====
+function listenToRoom(roomId) {
+  if (unsubRoom) unsubRoom();
+
+  unsubRoom = onSnapshot(doc(db, 'chatRooms', roomId), (docSnap) => {
+    if (!docSnap.exists()) {
+      // Sala foi deletada
+      cleanupAndBackToBot();
+      addSystemMessage('O atendimento foi encerrado.');
+      return;
+    }
+
+    const data = docSnap.data();
+
+    if (data.status === 'active' && chatMode !== 'human') {
+      updateUIForMode('human');
+      chatMessages.innerHTML = '';
+      addSystemMessage(`${data.atendenteName || 'Atendente'} entrou na conversa`);
+      listenToRoomMessages(roomId);
+    }
+
+    if (data.status === 'closed') {
+      addSystemMessage('O atendimento foi encerrado pelo atendente.');
+      cleanupAndBackToBot();
+    }
+  });
+}
+
+// ===== OUVIR MENSAGENS DA SALA EM TEMPO REAL =====
+function listenToRoomMessages(roomId) {
+  if (unsubMessages) unsubMessages();
+
+  const q = query(
+    collection(db, 'chatRooms', roomId, 'messages'),
+    orderBy('data', 'asc')
+  );
+
+  unsubMessages = onSnapshot(q, (snapshot) => {
+    chatMessages.innerHTML = '';
+    snapshot.forEach(docSnap => {
+      const msg = docSnap.data();
+      const type = msg.senderId === currentUser.uid ? 'user' : 'bot';
+      addMessage(msg.mensagem, type);
+    });
+  });
+}
+
+// ===== ENVIAR MENSAGEM NA SALA HUMANA =====
+async function sendHumanMessage(text) {
+  if (!activeRoomId || !currentUser) return;
+
+  try {
+    await addDoc(collection(db, 'chatRooms', activeRoomId, 'messages'), {
+      senderId: currentUser.uid,
+      senderName: currentUserData?.nome || 'Usuário',
+      mensagem: text,
+      data: serverTimestamp()
+    });
+  } catch (err) {
+    console.error('Erro ao enviar mensagem:', err);
+  }
+}
+
+// ===== VOLTAR AO BOT =====
+async function backToBot() {
+  if (activeRoomId) {
+    try {
+      await updateDoc(doc(db, 'chatRooms', activeRoomId), {
+        status: 'closed'
+      });
+    } catch { /* sala pode já ter sido fechada */ }
+  }
+  cleanupAndBackToBot();
+}
+
+function cleanupAndBackToBot() {
+  if (unsubMessages) { unsubMessages(); unsubMessages = null; }
+  if (unsubRoom) { unsubRoom(); unsubRoom = null; }
+  activeRoomId = null;
+  chatMessages.innerHTML = '';
+  updateUIForMode('bot');
+  addBotMessage('Olá! 💜 Eu sou o assistente do Conexão Consciente. Estou aqui pra te ouvir. Como você está se sentindo hoje?');
+}
+
+// ===== CANCELAR ESPERA =====
+async function cancelWait() {
+  if (activeRoomId) {
+    try {
+      await deleteDoc(doc(db, 'chatRooms', activeRoomId));
+    } catch { /* silenciar */ }
+  }
+  cleanupAndBackToBot();
 }
 
 // ===== RESPOSTAS DO BOT =====
@@ -189,9 +433,16 @@ function getBotResponse(userText) {
 async function sendMessage() {
   const text = chatInput.value.trim();
   if (!text) return;
-
-  addUserMessage(text);
   chatInput.value = '';
+
+  // Modo humano: enviar para a sala
+  if (chatMode === 'human') {
+    await sendHumanMessage(text);
+    return;
+  }
+
+  // Modo bot: resposta automática
+  addUserMessage(text);
 
   // Salvar no Firebase
   if (currentUser) {
@@ -231,6 +482,7 @@ async function sendMessage() {
   }, 1200);
 }
 
+// ===== EVENT LISTENERS =====
 if (btnSend) {
   btnSend.addEventListener('click', sendMessage);
 }
@@ -241,27 +493,14 @@ if (chatInput) {
   });
 }
 
-// ===== CARREGAR HISTÓRICO =====
-async function loadChatHistory(uid) {
-  try {
-    const q = query(
-      collection(db, 'mensagens'),
-      where('userId', '==', uid),
-      orderBy('data', 'desc'),
-      limit(20)
-    );
+if (btnRequestHuman) {
+  btnRequestHuman.addEventListener('click', requestHumanAttendant);
+}
 
-    const snapshot = await getDocs(q);
-    if (snapshot.empty) return;
+if (btnBackToBot) {
+  btnBackToBot.addEventListener('click', backToBot);
+}
 
-    const msgs = [];
-    snapshot.forEach(docSnap => msgs.push(docSnap.data()));
-    msgs.reverse();
-
-    msgs.forEach(msg => {
-      addMessage(msg.mensagem, msg.tipo || 'bot');
-    });
-  } catch {
-    // Índice pode não estar criado
-  }
+if (btnCancelWait) {
+  btnCancelWait.addEventListener('click', cancelWait);
 }
