@@ -9,10 +9,12 @@ import {
 
 let currentUser = null;
 let currentUserData = null;
-let chatMode = 'bot'; // 'bot' | 'waiting' | 'human'
+let chatMode = 'bot'; // 'bot' | 'waiting' | 'human' | 'group'
 let activeRoomId = null;
 let unsubMessages = null;
 let unsubRoom = null;
+let unsubGroupRooms = null;
+let groupRooms = new Map(); // roomId -> data
 
 // ===== AUTH CHECK =====
 onAuthStateChanged(auth, async (user) => {
@@ -35,6 +37,7 @@ onAuthStateChanged(auth, async (user) => {
   currentUser = user;
   await loadUserInfo(user);
   await checkExistingRoom(user.uid);
+  listenToGroupRooms(user.uid);
   if (chatMode === 'bot') {
     addBotMessage('Olá! 💜 Eu sou o assistente do Conexão Consciente. Estou aqui pra te ouvir. Como você está se sentindo hoje?');
   }
@@ -154,6 +157,11 @@ const btnRequestHuman = document.getElementById('btnRequestHuman');
 const btnBackToBot = document.getElementById('btnBackToBot');
 const chatWaiting = document.getElementById('chatWaiting');
 const btnCancelWait = document.getElementById('btnCancelWait');
+const btnMyGroups = document.getElementById('btnMyGroups');
+const groupBadge = document.getElementById('groupBadge');
+const groupRoomsPanel = document.getElementById('groupRoomsPanel');
+const groupRoomsList = document.getElementById('groupRoomsList');
+const btnCloseGroups = document.getElementById('btnCloseGroups');
 
 // ===== ADICIONAR MENSAGEM NA TELA =====
 function addMessage(text, type = 'bot') {
@@ -213,6 +221,16 @@ function updateUIForMode(mode) {
     chatTitle.textContent = '🧑‍💼 Atendimento Humano';
     chatSubtitle.textContent = 'Você está conversando com um especialista';
     chatStatusEl.textContent = 'Conectado';
+    chatStatusEl.className = 'status';
+    btnRequestHuman.style.display = 'none';
+    btnBackToBot.style.display = '';
+    chatWaiting.style.display = 'none';
+    chatInput.disabled = false;
+    btnSend.disabled = false;
+  } else if (mode === 'group') {
+    chatTitle.textContent = '👥 Sala de Grupo';
+    chatSubtitle.textContent = 'Conversa em grupo com o especialista';
+    chatStatusEl.textContent = 'Ativo';
     chatStatusEl.className = 'status';
     btnRequestHuman.style.display = 'none';
     btnBackToBot.style.display = '';
@@ -338,6 +356,12 @@ async function sendHumanMessage(text) {
 
 // ===== VOLTAR AO BOT =====
 async function backToBot() {
+  // Grupos: apenas desconectar, não encerrar a sala
+  if (chatMode === 'group') {
+    cleanupAndBackToBot();
+    return;
+  }
+  // Atendimento individual: fechar sala
   if (activeRoomId) {
     try {
       await updateDoc(doc(db, 'chatRooms', activeRoomId), {
@@ -497,8 +521,8 @@ async function sendMessage() {
   if (!text) return;
   chatInput.value = '';
 
-  // Modo humano: enviar para a sala
-  if (chatMode === 'human') {
+  // Modo humano ou grupo: enviar para a sala
+  if (chatMode === 'human' || chatMode === 'group') {
     await sendHumanMessage(text);
     return;
   }
@@ -565,4 +589,126 @@ if (btnBackToBot) {
 
 if (btnCancelWait) {
   btnCancelWait.addEventListener('click', cancelWait);
+}
+
+if (btnMyGroups) {
+  btnMyGroups.addEventListener('click', () => {
+    const isOpen = groupRoomsPanel.style.display !== 'none';
+    groupRoomsPanel.style.display = isOpen ? 'none' : 'block';
+    if (!isOpen) renderGroupRoomsList();
+  });
+}
+
+if (btnCloseGroups) {
+  btnCloseGroups.addEventListener('click', () => {
+    groupRoomsPanel.style.display = 'none';
+  });
+}
+
+// ===== OUVIR SALAS DE GRUPO =====
+function listenToGroupRooms(uid) {
+  if (unsubGroupRooms) unsubGroupRooms();
+
+  // Query simples de array-contains para evitar índice composto
+  const q = query(
+    collection(db, 'chatRooms'),
+    where('members', 'array-contains', uid)
+  );
+
+  unsubGroupRooms = onSnapshot(q, (snapshot) => {
+    groupRooms.clear();
+    snapshot.forEach(docSnap => {
+      const d = docSnap.data();
+      // Filtrar client-side: apenas grupos ativos
+      if (d.type === 'group' && d.status === 'active') {
+        groupRooms.set(docSnap.id, d);
+      }
+    });
+
+    const count = groupRooms.size;
+    if (btnMyGroups) btnMyGroups.style.display = count > 0 ? '' : 'none';
+    if (groupBadge) {
+      groupBadge.textContent = count;
+      groupBadge.style.display = count > 0 ? '' : 'none';
+    }
+
+    // Se estiver em um grupo que foi encerrado, voltar ao bot
+    if (activeRoomId && chatMode === 'group' && !groupRooms.has(activeRoomId)) {
+      addSystemMessage('Esta sala de grupo foi encerrada.');
+      cleanupAndBackToBot();
+    }
+
+    // Atualizar painel se estiver aberto
+    if (groupRoomsPanel && groupRoomsPanel.style.display !== 'none') {
+      renderGroupRoomsList();
+    }
+  }, () => { /* Sem permissão ainda - silenciar */ });
+}
+
+function renderGroupRoomsList() {
+  if (!groupRoomsList) return;
+  groupRoomsList.innerHTML = '';
+
+  if (groupRooms.size === 0) {
+    groupRoomsList.innerHTML = '<p style="color:var(--text-light);font-size:0.85rem;padding:12px;">Sem salas de grupo ativas.</p>';
+    return;
+  }
+
+  groupRooms.forEach((data, roomId) => {
+    const item = document.createElement('div');
+    item.className = 'group-room-item';
+    item.innerHTML = `
+      <div class="queue-avatar" style="background:var(--primary);width:36px;height:36px;">👥</div>
+      <div style="flex:1">
+        <strong style="font-size:0.9rem;">${escapeHtmlChat(data.groupName || 'Grupo')}</strong>
+        <span class="queue-time">por ${escapeHtmlChat(data.atendenteName || 'Especialista')}</span>
+      </div>
+      <button class="btn btn-primary btn-sm" data-room-id="${roomId}">Abrir</button>
+    `;
+    item.querySelector('button').addEventListener('click', () => {
+      groupRoomsPanel.style.display = 'none';
+      openGroupRoom(roomId, data);
+    });
+    groupRoomsList.appendChild(item);
+  });
+}
+
+function openGroupRoom(roomId, data) {
+  // Cancelar listeners anteriores
+  if (unsubMessages) { unsubMessages(); unsubMessages = null; }
+  if (unsubRoom) { unsubRoom(); unsubRoom = null; }
+
+  activeRoomId = roomId;
+  const groupLabel = data.groupName || 'Grupo';
+  chatMessages.innerHTML = '';
+  updateUIForMode('group');
+  chatTitle.textContent = `👥 ${escapeHtmlChat(groupLabel)}`;
+  chatSubtitle.textContent = `por ${escapeHtmlChat(data.atendenteName || 'Especialista')}`;
+
+  addSystemMessage(`Bem-vindo(a) ao grupo: ${groupLabel}`);
+
+  // Ouvir mensagens
+  const q = query(collection(db, 'chatRooms', roomId, 'messages'), orderBy('data', 'asc'));
+  unsubMessages = onSnapshot(q, (snapshot) => {
+    chatMessages.innerHTML = '';
+    addSystemMessage(`Grupo: ${groupLabel}`);
+    snapshot.forEach(docSnap => {
+      const msg = docSnap.data();
+      const isOwn = msg.senderId === currentUser.uid;
+      if (msg.senderId === 'system') {
+        addSystemMessage(msg.mensagem);
+      } else {
+        const senderLabel = !isOwn && msg.senderName
+          ? `<span class="msg-sender">${escapeHtmlChat(msg.senderName)}</span> `
+          : '';
+        addMessage(senderLabel + escapeHtmlChat(msg.mensagem), isOwn ? 'user' : 'bot');
+      }
+    });
+  });
+}
+
+function escapeHtmlChat(text) {
+  const div = document.createElement('div');
+  div.textContent = text || '';
+  return div.innerHTML;
 }

@@ -46,16 +46,38 @@
     </div>
 
     <div class="atendente-layout">
-      <!-- FILA DE ESPERA -->
-      <div class="atendente-queue card">
-        <h3>📋 Fila de Espera</h3>
-        <p class="queue-info">Usuários aguardando atendimento</p>
-        <div class="queue-list" id="queueList">
-          <div class="queue-empty" id="queueEmpty">
-            <span>😊</span>
-            <p>Nenhum usuário na fila</p>
+      <!-- PAINEL ESQUERDO -->
+      <div class="atendente-sidebar">
+
+        <!-- FILA DE ESPERA -->
+        <div class="atendente-queue card">
+          <h3>📋 Fila de Espera</h3>
+          <p class="queue-info">Usuários aguardando atendimento</p>
+          <div class="queue-list" id="queueList">
+            <div class="queue-empty" id="queueEmpty">
+              <span>😊</span>
+              <p>Nenhum usuário na fila</p>
+            </div>
           </div>
         </div>
+
+        <!-- ATENDIMENTOS ATIVOS -->
+        <div class="atendente-active card">
+          <div class="active-header">
+            <h3>💬 Atendimentos Ativos</h3>
+            <span class="active-count" id="activeCount">0</span>
+          </div>
+          <div class="active-list" id="activeRoomList">
+            <div class="queue-empty" id="activeEmpty">
+              <span>💤</span>
+              <p>Nenhum atendimento ativo</p>
+            </div>
+          </div>
+          <button class="btn btn-secondary btn-sm create-group-btn" id="btnCreateGroup">
+            👥 Criar Sala de Grupo
+          </button>
+        </div>
+
       </div>
 
       <!-- CHAT DO ATENDENTE -->
@@ -82,7 +104,33 @@
       <div class="atendente-chat-placeholder card" id="chatPlaceholder">
         <span>💬</span>
         <h3>Selecione um atendimento</h3>
-        <p>Aceite um usuário da fila para iniciar a conversa</p>
+        <p>Aceite um usuário da fila ou crie uma sala de grupo</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CRIAR SALA DE GRUPO -->
+  <div class="group-modal-overlay" id="groupModal" style="display:none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>👥 Criar Sala de Grupo</h3>
+        <button class="modal-close" id="btnCloseModal">✕</button>
+      </div>
+      <div class="modal-body">
+        <label class="form-label">Nome do grupo</label>
+        <input type="text" id="groupName" class="form-input" placeholder="Ex: Grupo de Apoio - Turma A" maxlength="60">
+        <label class="form-label" style="margin-top:16px;">Selecionar participantes</label>
+        <div class="user-search-wrap">
+          <input type="text" id="userSearch" class="form-input" placeholder="Buscar usuário...">
+        </div>
+        <div class="user-select-list" id="userSelectList">
+          <p class="loading-users">Carregando usuários...</p>
+        </div>
+        <p class="selected-info" id="selectedInfo">Nenhum participante selecionado</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" id="btnCancelGroup">Cancelar</button>
+        <button class="btn btn-primary" id="btnConfirmGroup">Criar Grupo</button>
       </div>
     </div>
   </div>

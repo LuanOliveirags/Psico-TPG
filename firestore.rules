@@ -70,7 +70,7 @@ service cloud.firestore {
 
     // ===== CHAT ROOMS =====
     match /chatRooms/{roomId} {
-      // Qualquer usuário autenticado pode criar uma sala (status deve ser 'waiting')
+      // Usuário autenticado pode criar sala (individual ou grupo) se for o userId
       allow create: if isAuthenticated()
         && request.resource.data.userId == request.auth.uid
         && request.resource.data.status == 'waiting';
@@ -78,10 +78,15 @@ service cloud.firestore {
       // O dono da sala pode ler sua sala
       allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
 
+      // Membros de salas de grupo podem ler
+      allow read: if isAuthenticated()
+        && resource.data.type == 'group'
+        && request.auth.uid in resource.data.members;
+
       // Atendentes podem ler todas as salas (para ver a fila)
       allow read: if isAtendente();
 
-      // Atendentes podem aceitar uma sala waiting (mudar status para active e definir atendenteId)
+      // Atendentes podem aceitar/promover uma sala waiting para active
       allow update: if isAtendente()
         && resource.data.status == 'waiting'
         && request.resource.data.status == 'active'
@@ -92,21 +97,36 @@ service cloud.firestore {
         && isRoomParticipant(resource.data)
         && request.resource.data.status == 'closed';
 
+      // Atendentes podem encerrar ou atualizar salas que criaram
+      allow update: if isAtendente()
+        && resource.data.userId == request.auth.uid;
+
       // O dono pode deletar sua sala (cancelar espera)
       allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
 
       // ===== MESSAGES (subcollection) =====
       match /messages/{msgId} {
-        // Participantes da sala podem ler mensagens
+        // Participantes da sala individual podem ler mensagens
         allow read: if isAuthenticated()
           && isRoomParticipant(get(/databases/$(database)/documents/chatRooms/$(roomId)).data);
 
-        // Participantes da sala podem enviar mensagens (senderId deve ser o próprio)
+        // Membros de grupos podem ler mensagens
+        allow read: if isAuthenticated()
+          && get(/databases/$(database)/documents/chatRooms/$(roomId)).data.type == 'group'
+          && request.auth.uid in get(/databases/$(database)/documents/chatRooms/$(roomId)).data.members;
+
+        // Participantes da sala individual podem enviar mensagens
         allow create: if isAuthenticated()
           && isRoomParticipant(get(/databases/$(database)/documents/chatRooms/$(roomId)).data)
           && request.resource.data.senderId == request.auth.uid;
 
-        // Sistema pode enviar mensagens (atendente envia msg de encerramento com senderId 'system')
+        // Membros de grupos podem enviar mensagens
+        allow create: if isAuthenticated()
+          && get(/databases/$(database)/documents/chatRooms/$(roomId)).data.type == 'group'
+          && request.auth.uid in get(/databases/$(database)/documents/chatRooms/$(roomId)).data.members
+          && request.resource.data.senderId == request.auth.uid;
+
+        // Atendente pode enviar msg de sistema (encerramento)
         allow create: if isAtendente()
           && get(/databases/$(database)/documents/chatRooms/$(roomId)).data.atendenteId == request.auth.uid;
       }

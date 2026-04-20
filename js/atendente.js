@@ -2,15 +2,17 @@
 import { auth, db } from './firebase-config.js';
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import {
-  doc, getDoc, addDoc, updateDoc, collection, query, where, orderBy, onSnapshot, serverTimestamp
+  doc, getDoc, getDocs, addDoc, updateDoc, collection,
+  query, where, orderBy, onSnapshot, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 let currentUser = null;
 let currentUserData = null;
-let activeRoomId = null;
+
+// Mapa de salas abertas: roomId -> { data, unsubMessages, unsubRoom }
+const openRooms = new Map();
+let displayedRoomId = null; // sala exibida no painel direito
 let unsubQueue = null;
-let unsubMessages = null;
-let unsubRoom = null;
 
 // ===== AUTH CHECK =====
 onAuthStateChanged(auth, async (user) => {
@@ -21,7 +23,6 @@ onAuthStateChanged(auth, async (user) => {
   currentUser = user;
   await loadUserInfo(user);
 
-  // Verificar se é atendente
   if (!currentUserData || currentUserData.role !== 'atendente') {
     document.querySelector('.atendente-layout').innerHTML = `
       <div class="card" style="text-align:center; padding:48px; grid-column:1/-1;">
@@ -34,9 +35,9 @@ onAuthStateChanged(auth, async (user) => {
     return;
   }
 
-  // Verificar se já tem sala ativa
-  await checkActiveRoom(user.uid);
+  await loadActiveRooms(user.uid);
   listenToQueue();
+  setupGroupModal();
 });
 
 // ===== SHARED: Theme, Hamburger, Logout =====
@@ -101,23 +102,162 @@ const atendenteChatMessages = document.getElementById('atendenteChatMessages');
 const atendenteInput = document.getElementById('atendenteInput');
 const btnAtendenteSend = document.getElementById('btnAtendenteSend');
 const btnCloseRoom = document.getElementById('btnCloseRoom');
+const activeRoomList = document.getElementById('activeRoomList');
+const activeCount = document.getElementById('activeCount');
 
-// ===== VERIFICAR SALA ATIVA EXISTENTE =====
-async function checkActiveRoom(uid) {
+// ===== CARREGAR SALAS ATIVAS EXISTENTES =====
+async function loadActiveRooms(uid) {
   try {
-    const q = query(
+    // Salas individuais aceitas pelo atendente
+    const q1 = query(
       collection(db, 'chatRooms'),
       where('atendenteId', '==', uid),
       where('status', '==', 'active')
     );
-    const snapshot = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js").then(m => m.getDocs(q));
-    if (!snapshot.empty) {
-      const roomDoc = snapshot.docs[0];
-      openChat(roomDoc.id, roomDoc.data());
-    }
-  } catch {
-    // Sem sala ativa
+    const snap1 = await getDocs(q1);
+    snap1.forEach(roomDoc => registerRoom(roomDoc.id, roomDoc.data()));
+  } catch (err) {
+    console.error('Erro ao carregar salas individuais:', err);
   }
+
+  try {
+    // Salas de grupo criadas pelo atendente (userId == uid = dono do grupo)
+    const q2 = query(
+      collection(db, 'chatRooms'),
+      where('userId', '==', uid),
+      where('status', '==', 'active')
+    );
+    const snap2 = await getDocs(q2);
+    snap2.forEach(roomDoc => {
+      // Só grupos (evita duplicar salas individuais onde o atendente seja também userId)
+      if (roomDoc.data().type === 'group') {
+        registerRoom(roomDoc.id, roomDoc.data());
+      }
+    });
+  } catch (err) {
+    console.error('Erro ao carregar salas de grupo:', err);
+  }
+}
+
+// ===== REGISTRAR SALA NO MAPA LOCAL =====
+function registerRoom(roomId, roomData) {
+  if (openRooms.has(roomId)) return;
+
+  const entry = { data: roomData, unsubMessages: null, unsubRoom: null };
+  openRooms.set(roomId, entry);
+
+  entry.unsubRoom = onSnapshot(doc(db, 'chatRooms', roomId), (docSnap) => {
+    if (!docSnap.exists() || docSnap.data().status === 'closed') {
+      if (displayedRoomId === roomId) addSystemMessage('O usuário encerrou a conversa.');
+      removeRoomEntry(roomId);
+      renderActiveRoomList();
+      return;
+    }
+    entry.data = docSnap.data();
+    renderActiveRoomList();
+  });
+
+  renderActiveRoomList();
+}
+
+// ===== REMOVER SALA DO MAPA =====
+function removeRoomEntry(roomId) {
+  const entry = openRooms.get(roomId);
+  if (!entry) return;
+  if (entry.unsubMessages) entry.unsubMessages();
+  if (entry.unsubRoom) entry.unsubRoom();
+  openRooms.delete(roomId);
+
+  if (displayedRoomId === roomId) {
+    displayedRoomId = null;
+    atendenteChat.style.display = 'none';
+    chatPlaceholder.style.display = 'flex';
+  }
+}
+
+// ===== RENDERIZAR LISTA DE ATIVOS =====
+function renderActiveRoomList() {
+  if (!activeCount || !activeRoomList) return;
+
+  activeCount.textContent = openRooms.size;
+
+  // Limpar itens anteriores
+  activeRoomList.querySelectorAll('.active-room-item').forEach(el => el.remove());
+
+  const emptyEl = activeRoomList.querySelector('.queue-empty');
+  if (openRooms.size === 0) {
+    if (emptyEl) emptyEl.style.display = 'flex';
+    return;
+  }
+  if (emptyEl) emptyEl.style.display = 'none';
+
+  openRooms.forEach((entry, roomId) => {
+    const data = entry.data || {};
+    const isGroup = data.type === 'group';
+    const label = isGroup ? (data.groupName || 'Grupo') : (data.userName || 'Usuário');
+    const icon = isGroup ? '👥' : '💬';
+    const isSelected = roomId === displayedRoomId;
+
+    const item = document.createElement('div');
+    item.className = 'active-room-item' + (isSelected ? ' active-room-selected' : '');
+    item.dataset.roomId = roomId;
+    item.innerHTML = `
+      <div class="active-room-info">
+        <div class="queue-avatar" style="background:${isGroup ? 'var(--primary)' : 'var(--secondary)'}">
+          ${icon}
+        </div>
+        <div>
+          <strong>${escapeHtml(label)}</strong>
+          <span class="queue-time">${isGroup ? 'Sala de grupo' : 'Atendimento'}</span>
+        </div>
+      </div>
+      <button class="btn-close-active" title="Encerrar">✕</button>
+    `;
+    item.querySelector('.active-room-info').addEventListener('click', () => switchToRoom(roomId));
+    item.querySelector('.btn-close-active').addEventListener('click', (e) => {
+      e.stopPropagation();
+      confirmCloseRoom(roomId);
+    });
+    activeRoomList.appendChild(item);
+  });
+}
+
+// ===== TROCAR SALA EXIBIDA =====
+function switchToRoom(roomId) {
+  displayedRoomId = roomId;
+  const entry = openRooms.get(roomId);
+  if (!entry) return;
+
+  const data = entry.data;
+  const isGroup = data.type === 'group';
+  chatPlaceholder.style.display = 'none';
+  atendenteChat.style.display = 'flex';
+  chatUserName.textContent = isGroup ? (data.groupName || 'Grupo') : (data.userName || 'Usuário');
+  chatRoomStatus.textContent = isGroup ? 'Sala de Grupo' : 'Ativo';
+  atendenteChatMessages.innerHTML = '';
+
+  const greeting = isGroup
+    ? `Sala de grupo: ${escapeHtml(data.groupName || 'Grupo')}`
+    : `Você está conversando com ${escapeHtml(data.userName || 'Usuário')}`;
+  addSystemMessage(greeting);
+
+  if (entry.unsubMessages) entry.unsubMessages();
+  const q = query(collection(db, 'chatRooms', roomId, 'messages'), orderBy('data', 'asc'));
+  entry.unsubMessages = onSnapshot(q, (snapshot) => {
+    if (displayedRoomId !== roomId) return;
+    atendenteChatMessages.innerHTML = '';
+    addSystemMessage(greeting);
+    snapshot.forEach(docSnap => {
+      const msg = docSnap.data();
+      const isOwn = msg.senderId === currentUser.uid;
+      const displayText = isGroup && msg.senderName && !isOwn
+        ? `[${escapeHtml(msg.senderName)}] ${escapeHtml(msg.mensagem)}`
+        : escapeHtml(msg.mensagem);
+      addMessage(displayText, isOwn);
+    });
+  });
+
+  renderActiveRoomList();
 }
 
 // ===== OUVIR FILA DE ESPERA EM TEMPO REAL =====
@@ -191,7 +331,9 @@ async function acceptRoom(roomId) {
 
     const roomSnap = await getDoc(doc(db, 'chatRooms', roomId));
     if (roomSnap.exists()) {
-      openChat(roomId, roomSnap.data());
+      registerRoom(roomId, roomSnap.data());
+      switchToRoom(roomId);
+      showToast(`Atendendo ${roomSnap.data().userName || 'Usuário'}`, 'success');
     }
   } catch (err) {
     console.error('Erro ao aceitar sala:', err);
@@ -199,61 +341,67 @@ async function acceptRoom(roomId) {
   }
 }
 
-// ===== ABRIR CHAT =====
-function openChat(roomId, roomData) {
-  activeRoomId = roomId;
-  chatPlaceholder.style.display = 'none';
-  atendenteChat.style.display = 'flex';
-  chatUserName.textContent = escapeHtml(roomData.userName || 'Usuário');
-  chatRoomStatus.textContent = 'Ativo';
-  atendenteChatMessages.innerHTML = '';
-
-  addSystemMessage(`Você está conversando com ${escapeHtml(roomData.userName || 'Usuário')}`);
-
-  listenToRoomMessages(roomId);
-  listenToRoomStatus(roomId);
+// ===== CONFIRMAR ENCERRAMENTO =====
+function confirmCloseRoom(roomId) {
+  const entry = openRooms.get(roomId);
+  if (!entry) return;
+  const label = entry.data.type === 'group'
+    ? (entry.data.groupName || 'grupo')
+    : (entry.data.userName || 'usuário');
+  if (confirm(`Encerrar atendimento com ${label}?`)) {
+    closeRoom(roomId);
+  }
 }
 
-// ===== OUVIR MENSAGENS EM TEMPO REAL =====
-function listenToRoomMessages(roomId) {
-  if (unsubMessages) unsubMessages();
+// ===== ENCERRAR ATENDIMENTO =====
+async function closeRoom(roomId) {
+  const rid = roomId || displayedRoomId;
+  if (!rid) return;
 
-  const q = query(
-    collection(db, 'chatRooms', roomId, 'messages'),
-    orderBy('data', 'asc')
-  );
-
-  unsubMessages = onSnapshot(q, (snapshot) => {
-    atendenteChatMessages.innerHTML = '';
-    snapshot.forEach(docSnap => {
-      const msg = docSnap.data();
-      const type = msg.senderId === currentUser.uid ? 'user' : 'bot';
-      addMessage(msg.mensagem, type);
+  try {
+    await addDoc(collection(db, 'chatRooms', rid, 'messages'), {
+      senderId: 'system',
+      senderName: 'Sistema',
+      mensagem: 'O especialista encerrou a conversa. Obrigado pelo contato! 💜',
+      data: serverTimestamp()
     });
-  });
+    await updateDoc(doc(db, 'chatRooms', rid), {
+      status: 'closed',
+      encerradoEm: serverTimestamp()
+    });
+  } catch (err) {
+    console.error('Erro ao encerrar sala:', err);
+  }
+
+  removeRoomEntry(rid);
+  renderActiveRoomList();
 }
 
-// ===== OUVIR STATUS DA SALA =====
-function listenToRoomStatus(roomId) {
-  if (unsubRoom) unsubRoom();
+// ===== ENVIAR MENSAGEM =====
+async function sendMessage() {
+  const text = atendenteInput.value.trim();
+  if (!text || !displayedRoomId) return;
+  atendenteInput.value = '';
 
-  unsubRoom = onSnapshot(doc(db, 'chatRooms', roomId), (docSnap) => {
-    if (!docSnap.exists() || docSnap.data().status === 'closed') {
-      addSystemMessage('O usuário encerrou a conversa.');
-      closeChat();
-    }
-  });
+  try {
+    await addDoc(collection(db, 'chatRooms', displayedRoomId, 'messages'), {
+      senderId: currentUser.uid,
+      senderName: currentUserData?.nome || 'Especialista',
+      mensagem: text,
+      data: serverTimestamp()
+    });
+  } catch (err) {
+    console.error('Erro ao enviar mensagem:', err);
+  }
 }
 
-// ===== ADICIONAR MENSAGEM =====
-function addMessage(text, type = 'bot') {
+// ===== ADICIONAR MENSAGEM NA TELA =====
+function addMessage(html, isOwn = false) {
   const msgDiv = document.createElement('div');
-  msgDiv.className = `chat-msg ${type}`;
-
+  msgDiv.className = `chat-msg ${isOwn ? 'user' : 'bot'}`;
   const now = new Date();
   const time = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-
-  msgDiv.innerHTML = `${escapeHtml(text)}<span class="time">${time}</span>`;
+  msgDiv.innerHTML = `${html}<span class="time">${time}</span>`;
   atendenteChatMessages.appendChild(msgDiv);
   atendenteChatMessages.scrollTop = atendenteChatMessages.scrollHeight;
 }
@@ -266,54 +414,146 @@ function addSystemMessage(text) {
   atendenteChatMessages.scrollTop = atendenteChatMessages.scrollHeight;
 }
 
-// ===== ENVIAR MENSAGEM =====
-async function sendMessage() {
-  const text = atendenteInput.value.trim();
-  if (!text || !activeRoomId) return;
-  atendenteInput.value = '';
+// ===== MODAL: CRIAR SALA DE GRUPO =====
+let allUsers = [];
+let selectedUserIds = new Set();
+
+function setupGroupModal() {
+  const btnCreateGroup = document.getElementById('btnCreateGroup');
+  const groupModal = document.getElementById('groupModal');
+  const btnCloseModal = document.getElementById('btnCloseModal');
+  const btnCancelGroup = document.getElementById('btnCancelGroup');
+  const btnConfirmGroup = document.getElementById('btnConfirmGroup');
+  const userSearch = document.getElementById('userSearch');
+
+  if (!btnCreateGroup) return;
+
+  btnCreateGroup.addEventListener('click', openGroupModal);
+  btnCloseModal.addEventListener('click', closeGroupModal);
+  btnCancelGroup.addEventListener('click', closeGroupModal);
+  btnConfirmGroup.addEventListener('click', createGroupRoom);
+  userSearch.addEventListener('input', () => renderUserList(userSearch.value.trim().toLowerCase()));
+  groupModal.addEventListener('click', (e) => { if (e.target === groupModal) closeGroupModal(); });
+}
+
+async function openGroupModal() {
+  selectedUserIds.clear();
+  document.getElementById('groupName').value = '';
+  document.getElementById('userSearch').value = '';
+  document.getElementById('selectedInfo').textContent = 'Nenhum participante selecionado';
+  document.getElementById('groupModal').style.display = 'flex';
 
   try {
-    await addDoc(collection(db, 'chatRooms', activeRoomId, 'messages'), {
-      senderId: currentUser.uid,
-      senderName: currentUserData?.nome || 'Especialista',
-      mensagem: text,
-      data: serverTimestamp()
+    const snap = await getDocs(collection(db, 'users'));
+    allUsers = [];
+    snap.forEach(docSnap => {
+      const data = docSnap.data();
+      if (docSnap.id !== currentUser.uid) {
+        allUsers.push({ id: docSnap.id, nome: data.nome || 'Usuário', role: data.role || 'user' });
+      }
     });
+    renderUserList('');
   } catch (err) {
-    console.error('Erro ao enviar mensagem:', err);
+    console.error('Erro ao carregar usuários:', err);
+    document.getElementById('userSelectList').innerHTML =
+      '<p style="color:var(--danger);font-size:0.85rem;">Erro ao carregar usuários.</p>';
   }
 }
 
-// ===== ENCERRAR ATENDIMENTO =====
-async function closeRoom() {
-  if (!activeRoomId) return;
+function closeGroupModal() {
+  document.getElementById('groupModal').style.display = 'none';
+}
+
+function renderUserList(filter) {
+  const list = document.getElementById('userSelectList');
+  const filtered = filter
+    ? allUsers.filter(u => u.nome.toLowerCase().includes(filter))
+    : allUsers;
+
+  if (filtered.length === 0) {
+    list.innerHTML = '<p style="color:var(--text-light);font-size:0.85rem;padding:12px 0;">Nenhum usuário encontrado.</p>';
+    return;
+  }
+
+  list.innerHTML = '';
+  filtered.forEach(user => {
+    const isSelected = selectedUserIds.has(user.id);
+    const item = document.createElement('div');
+    item.className = `user-select-item${isSelected ? ' selected' : ''}`;
+    item.innerHTML = `
+      <div class="user-select-check">${isSelected ? '✓' : ''}</div>
+      <div class="queue-avatar" style="width:32px;height:32px;font-size:0.8rem;">${user.nome.charAt(0).toUpperCase()}</div>
+      <div>
+        <strong style="font-size:0.85rem;">${escapeHtml(user.nome)}</strong>
+        <span class="queue-time">${user.role === 'atendente' ? 'Especialista' : 'Usuário'}</span>
+      </div>
+    `;
+    item.addEventListener('click', () => toggleUserSelect(user.id, item));
+    list.appendChild(item);
+  });
+}
+
+function toggleUserSelect(userId, itemEl) {
+  if (selectedUserIds.has(userId)) {
+    selectedUserIds.delete(userId);
+    itemEl.classList.remove('selected');
+    itemEl.querySelector('.user-select-check').textContent = '';
+  } else {
+    selectedUserIds.add(userId);
+    itemEl.classList.add('selected');
+    itemEl.querySelector('.user-select-check').textContent = '✓';
+  }
+  const count = selectedUserIds.size;
+  document.getElementById('selectedInfo').textContent =
+    count === 0 ? 'Nenhum participante selecionado' : `${count} participante(s) selecionado(s)`;
+}
+
+async function createGroupRoom() {
+  const groupName = document.getElementById('groupName').value.trim();
+  if (!groupName) { showToast('Informe o nome do grupo', 'error'); return; }
+  if (selectedUserIds.size === 0) { showToast('Selecione ao menos um participante', 'error'); return; }
+
+  const members = [currentUser.uid, ...selectedUserIds];
+  const btnConfirm = document.getElementById('btnConfirmGroup');
 
   try {
-    // Enviar mensagem de encerramento
-    await addDoc(collection(db, 'chatRooms', activeRoomId, 'messages'), {
+    btnConfirm.disabled = true;
+
+    // Passo 1: criar com status 'waiting' + userId (atende regra original implantada)
+    const roomRef = await addDoc(collection(db, 'chatRooms'), {
+      type: 'group',
+      groupName,
+      members,
+      userId: currentUser.uid,
+      status: 'waiting',
+      criadoEm: serverTimestamp()
+    });
+
+    // Passo 2: promover para 'active' como atendente (atende regra de update implantada)
+    await updateDoc(doc(db, 'chatRooms', roomRef.id), {
+      status: 'active',
+      atendenteId: currentUser.uid,
+      atendenteName: currentUserData?.nome || 'Especialista'
+    });
+
+    await addDoc(collection(db, 'chatRooms', roomRef.id, 'messages'), {
       senderId: 'system',
       senderName: 'Sistema',
-      mensagem: 'O especialista encerrou a conversa. Obrigado pelo contato! 💜',
+      mensagem: `Sala de grupo "${groupName}" criada. Bem-vindos! 💜`,
       data: serverTimestamp()
     });
 
-    await updateDoc(doc(db, 'chatRooms', activeRoomId), {
-      status: 'closed',
-      encerradoEm: serverTimestamp()
-    });
+    closeGroupModal();
+    const roomSnap = await getDoc(roomRef);
+    registerRoom(roomRef.id, roomSnap.data());
+    switchToRoom(roomRef.id);
+    showToast(`Grupo "${groupName}" criado!`, 'success');
   } catch (err) {
-    console.error('Erro ao encerrar sala:', err);
+    console.error('Erro ao criar grupo:', err);
+    showToast('Erro ao criar grupo. Tente novamente.', 'error');
+  } finally {
+    if (btnConfirm) btnConfirm.disabled = false;
   }
-
-  closeChat();
-}
-
-function closeChat() {
-  if (unsubMessages) { unsubMessages(); unsubMessages = null; }
-  if (unsubRoom) { unsubRoom(); unsubRoom = null; }
-  activeRoomId = null;
-  atendenteChat.style.display = 'none';
-  chatPlaceholder.style.display = 'flex';
 }
 
 // ===== TOAST =====
@@ -344,5 +584,5 @@ if (atendenteInput) {
 }
 
 if (btnCloseRoom) {
-  btnCloseRoom.addEventListener('click', closeRoom);
+  btnCloseRoom.addEventListener('click', () => confirmCloseRoom(displayedRoomId));
 }

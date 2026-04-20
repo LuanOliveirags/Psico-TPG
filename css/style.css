@@ -1631,8 +1631,17 @@ a {
   height: calc(100vh - 180px);
 }
 
-.atendente-queue {
+/* Sidebar esquerda: fila + ativos */
+.atendente-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
   overflow-y: auto;
+  min-width: 0;
+}
+
+.atendente-queue {
+  flex-shrink: 0;
 }
 
 .atendente-queue h3 {
@@ -1644,6 +1653,324 @@ a {
   color: var(--text-light);
   font-size: 0.8rem;
   margin-bottom: 16px;
+}
+
+.atendente-active {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+}
+
+.active-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.active-header h3 {
+  font-size: 1.05rem;
+  margin: 0;
+}
+
+.active-count {
+  background: var(--primary);
+  color: #fff;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  min-width: 20px;
+  text-align: center;
+}
+
+.active-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.active-room-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--bg);
+  cursor: pointer;
+  transition: all var(--transition);
+  border: 2px solid transparent;
+}
+
+.active-room-item:hover {
+  background: rgba(108,99,255,0.06);
+}
+
+.active-room-selected {
+  border-color: var(--primary) !important;
+  background: rgba(108,99,255,0.08) !important;
+}
+
+.active-room-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+.active-room-info strong {
+  font-size: 0.85rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+
+.btn-close-active {
+  background: none;
+  border: none;
+  color: var(--text-light);
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+  transition: background var(--transition), color var(--transition);
+}
+
+.btn-close-active:hover {
+  background: rgba(255,59,59,0.1);
+  color: var(--danger);
+}
+
+.create-group-btn {
+  margin-top: 4px;
+  width: 100%;
+  justify-content: center;
+}
+
+/* ===== MODAL GERAL (atendente - grupo) ===== */
+.group-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.modal-card {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  width: 100%;
+  max-width: 480px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.modal-header h3 {
+  font-size: 1.05rem;
+  margin: 0;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  color: var(--text-light);
+  padding: 4px 8px;
+  border-radius: 8px;
+  transition: background var(--transition);
+}
+
+.modal-close:hover {
+  background: var(--bg);
+}
+
+.modal-body {
+  padding: 20px 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.modal-footer {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  padding: 16px 24px;
+  border-top: 1px solid var(--border);
+}
+
+.form-label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1.5px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color var(--transition);
+  box-sizing: border-box;
+}
+
+.form-input:focus {
+  border-color: var(--primary);
+}
+
+.user-search-wrap {
+  margin-bottom: 12px;
+}
+
+.user-select-list {
+  max-height: 240px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px;
+  background: var(--bg);
+}
+
+.user-select-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background var(--transition);
+}
+
+.user-select-item:hover {
+  background: rgba(108,99,255,0.06);
+}
+
+.user-select-item.selected {
+  background: rgba(108,99,255,0.1);
+}
+
+.user-select-check {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--border);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--primary);
+  flex-shrink: 0;
+  background: var(--bg-card);
+}
+
+.user-select-item.selected .user-select-check {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+.selected-info {
+  font-size: 0.78rem;
+  color: var(--primary);
+  font-weight: 600;
+  margin-top: 10px;
+}
+
+/* ===== GRUPOS NO CHAT (user side) ===== */
+.group-badge {
+  background: var(--danger);
+  color: #fff;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  margin-left: 4px;
+  vertical-align: middle;
+}
+
+.group-rooms-panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin: 0 16px 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+.group-rooms-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.group-rooms-header h4 {
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.group-rooms-list {
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.group-room-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--bg);
+}
+
+.group-room-item strong {
+  display: block;
+  font-size: 0.85rem;
+}
+
+.msg-sender {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--primary);
+  display: block;
+  margin-bottom: 2px;
 }
 
 .queue-list {
@@ -2032,8 +2359,14 @@ a {
     height: auto;
   }
 
+  .atendente-sidebar {
+    max-height: 350px;
+    overflow-y: auto;
+  }
+
   .atendente-queue {
-    max-height: 250px;
+    max-height: 200px;
+    overflow-y: auto;
   }
 
   .atendente-chat {
