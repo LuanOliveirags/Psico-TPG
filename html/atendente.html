@@ -87,7 +87,12 @@
             <h3 id="chatUserName">Usuário</h3>
             <span class="chat-room-status" id="chatRoomStatus">Ativo</span>
           </div>
-          <button class="btn btn-outline btn-sm" id="btnCloseRoom">Encerrar</button>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <button class="btn btn-outline btn-sm" id="btnManageMembers" style="display:none;" title="Gerenciar membros">
+              👥 <span id="membersCount">0</span> membros
+            </button>
+            <button class="btn btn-outline btn-sm" id="btnCloseRoom">Encerrar</button>
+          </div>
         </div>
 
         <div class="chat-messages atendente-messages" id="atendenteChatMessages">
@@ -105,6 +110,33 @@
         <span>💬</span>
         <h3>Selecione um atendimento</h3>
         <p>Aceite um usuário da fila ou crie uma sala de grupo</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: GERENCIAR MEMBROS DO GRUPO -->
+  <div class="group-modal-overlay" id="membersModal" style="display:none;">
+    <div class="modal-card" style="max-width:460px;">
+      <div class="modal-header">
+        <h3>👥 Membros do Grupo</h3>
+        <button class="modal-close" id="btnCloseMembersModal">✕</button>
+      </div>
+      <div class="modal-body">
+        <label class="form-label">Participantes atuais</label>
+        <div id="membersList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;min-height:40px;"></div>
+
+        <hr style="border:none;border-top:1px solid var(--border);margin:8px 0 16px;">
+
+        <label class="form-label">➕ Adicionar participante</label>
+        <div class="user-search-wrap">
+          <input type="text" id="addMemberSearch" class="form-input" placeholder="Buscar usuário...">
+        </div>
+        <div class="user-select-list" id="addMemberList" style="max-height:160px;"></div>
+        <p class="selected-info" id="addMemberInfo">Nenhum selecionado</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" id="btnCancelMembers">Fechar</button>
+        <button class="btn btn-primary" id="btnConfirmAddMember">Adicionar Selecionados</button>
       </div>
     </div>
   </div>

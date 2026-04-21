@@ -1973,6 +1973,33 @@ a {
   margin-bottom: 2px;
 }
 
+/* ===== MEMBER MANAGEMENT ===== */
+.member-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+}
+
+.btn-remove-member {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--danger, #e53e3e);
+  font-size: 0.85rem;
+  padding: 4px 6px;
+  border-radius: 6px;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+
+.btn-remove-member:hover {
+  background: rgba(229, 62, 62, 0.1);
+}
+
 .queue-list {
   display: flex;
   flex-direction: column;

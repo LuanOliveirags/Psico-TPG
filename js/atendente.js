@@ -3,7 +3,8 @@ import { auth, db } from './firebase-config.js';
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import {
   doc, getDoc, getDocs, addDoc, updateDoc, collection,
-  query, where, orderBy, onSnapshot, serverTimestamp
+  query, where, orderBy, onSnapshot, serverTimestamp,
+  arrayUnion, arrayRemove
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 let currentUser = null;
@@ -38,6 +39,7 @@ onAuthStateChanged(auth, async (user) => {
   await loadActiveRooms(user.uid);
   listenToQueue();
   setupGroupModal();
+  setupMembersModal();
 });
 
 // ===== SHARED: Theme, Hamburger, Logout =====
@@ -234,6 +236,17 @@ function switchToRoom(roomId) {
   atendenteChat.style.display = 'flex';
   chatUserName.textContent = isGroup ? (data.groupName || 'Grupo') : (data.userName || 'Usuário');
   chatRoomStatus.textContent = isGroup ? 'Sala de Grupo' : 'Ativo';
+
+  // Botão de membros: visível apenas em grupos
+  const btnManageMembers = document.getElementById('btnManageMembers');
+  const membersCountEl = document.getElementById('membersCount');
+  if (btnManageMembers) {
+    btnManageMembers.style.display = isGroup ? '' : 'none';
+    if (isGroup && membersCountEl) {
+      membersCountEl.textContent = (data.members || []).length;
+    }
+  }
+
   atendenteChatMessages.innerHTML = '';
 
   const greeting = isGroup
@@ -412,6 +425,202 @@ function addSystemMessage(text) {
   msgDiv.textContent = text;
   atendenteChatMessages.appendChild(msgDiv);
   atendenteChatMessages.scrollTop = atendenteChatMessages.scrollHeight;
+}
+
+// ===== MODAL: GERENCIAR MEMBROS DO GRUPO =====
+let addMembersSelected = new Set();
+let managingRoomId = null;
+
+function setupMembersModal() {
+  const membersModal = document.getElementById('membersModal');
+  const btnCloseMembersModal = document.getElementById('btnCloseMembersModal');
+  const btnCancelMembers = document.getElementById('btnCancelMembers');
+  const btnConfirmAddMember = document.getElementById('btnConfirmAddMember');
+  const addMemberSearch = document.getElementById('addMemberSearch');
+  const btnManageMembers = document.getElementById('btnManageMembers');
+
+  if (!membersModal) return;
+
+  btnManageMembers.addEventListener('click', () => openMembersModal(displayedRoomId));
+  btnCloseMembersModal.addEventListener('click', closeMembersModal);
+  btnCancelMembers.addEventListener('click', closeMembersModal);
+  btnConfirmAddMember.addEventListener('click', addSelectedToGroup);
+  addMemberSearch.addEventListener('input', () =>
+    renderAddMemberList(addMemberSearch.value.trim().toLowerCase())
+  );
+  membersModal.addEventListener('click', (e) => { if (e.target === membersModal) closeMembersModal(); });
+}
+
+async function openMembersModal(roomId) {
+  if (!roomId) return;
+  managingRoomId = roomId;
+  addMembersSelected.clear();
+  document.getElementById('addMemberSearch').value = '';
+  document.getElementById('addMemberInfo').textContent = 'Nenhum selecionado';
+  document.getElementById('membersModal').style.display = 'flex';
+
+  await renderMembersList(roomId);
+
+  try {
+    const snap = await getDocs(collection(db, 'users'));
+    allUsers = [];
+    snap.forEach(docSnap => {
+      const d = docSnap.data();
+      allUsers.push({ id: docSnap.id, nome: d.nome || 'Usuário', role: d.role || 'user' });
+    });
+    renderAddMemberList('');
+  } catch (err) {
+    console.error('Erro ao carregar usuários:', err);
+  }
+}
+
+function closeMembersModal() {
+  document.getElementById('membersModal').style.display = 'none';
+  managingRoomId = null;
+  addMembersSelected.clear();
+}
+
+async function renderMembersList(roomId) {
+  const membersList = document.getElementById('membersList');
+  if (!membersList) return;
+  membersList.innerHTML = '<p style="font-size:0.82rem;color:var(--text-light);">Carregando...</p>';
+
+  const entry = openRooms.get(roomId);
+  if (!entry) return;
+  const members = entry.data.members || [];
+
+  membersList.innerHTML = '';
+  for (const uid of members) {
+    let nome = uid;
+    let role = 'user';
+    try {
+      const userDoc = await getDoc(doc(db, 'users', uid));
+      if (userDoc.exists()) {
+        nome = userDoc.data().nome || uid;
+        role = userDoc.data().role || 'user';
+      }
+    } catch {}
+
+    const isCreator = uid === entry.data.userId;
+    const isMe = uid === currentUser.uid;
+    const roleLabel = role === 'atendente' ? 'Especialista' : (role === 'admin' ? 'Admin' : 'Usuário');
+    const avatarColor = role === 'atendente' ? 'var(--primary)' : 'var(--secondary)';
+
+    const item = document.createElement('div');
+    item.className = 'member-item';
+    item.innerHTML = `
+      <div class="queue-avatar" style="width:34px;height:34px;font-size:0.8rem;flex-shrink:0;background:${avatarColor}">
+        ${escapeHtml(nome.charAt(0).toUpperCase())}
+      </div>
+      <div style="flex:1;min-width:0">
+        <strong style="font-size:0.85rem;display:block;">${escapeHtml(nome)}</strong>
+        <span class="queue-time">${roleLabel}${isCreator ? ' · Criador' : ''}${isMe ? ' · Você' : ''}</span>
+      </div>
+      ${(!isCreator && !isMe) ? `<button class="btn-remove-member" data-uid="${uid}" title="Remover membro">✕</button>` : ''}
+    `;
+    if (!isCreator && !isMe) {
+      item.querySelector('.btn-remove-member').addEventListener('click', () =>
+        removeMemberFromGroup(roomId, uid, nome)
+      );
+    }
+    membersList.appendChild(item);
+  }
+}
+
+function renderAddMemberList(filter) {
+  const entry = openRooms.get(managingRoomId);
+  const currentMembers = entry?.data?.members || [];
+  const list = document.getElementById('addMemberList');
+  if (!list) return;
+
+  const filtered = allUsers.filter(u =>
+    !currentMembers.includes(u.id) && (!filter || u.nome.toLowerCase().includes(filter))
+  );
+
+  if (filtered.length === 0) {
+    list.innerHTML = '<p style="color:var(--text-light);font-size:0.82rem;padding:8px 0;">Nenhum usuário disponível para adicionar.</p>';
+    return;
+  }
+
+  list.innerHTML = '';
+  filtered.forEach(user => {
+    const isSelected = addMembersSelected.has(user.id);
+    const item = document.createElement('div');
+    item.className = `user-select-item${isSelected ? ' selected' : ''}`;
+    item.innerHTML = `
+      <div class="user-select-check">${isSelected ? '✓' : ''}</div>
+      <div class="queue-avatar" style="width:32px;height:32px;font-size:0.8rem;flex-shrink:0;">${escapeHtml(user.nome.charAt(0).toUpperCase())}</div>
+      <div>
+        <strong style="font-size:0.85rem;">${escapeHtml(user.nome)}</strong>
+        <span class="queue-time">${user.role === 'atendente' ? 'Especialista' : 'Usuário'}</span>
+      </div>
+    `;
+    item.addEventListener('click', () => {
+      if (addMembersSelected.has(user.id)) {
+        addMembersSelected.delete(user.id);
+        item.classList.remove('selected');
+        item.querySelector('.user-select-check').textContent = '';
+      } else {
+        addMembersSelected.add(user.id);
+        item.classList.add('selected');
+        item.querySelector('.user-select-check').textContent = '✓';
+      }
+      const count = addMembersSelected.size;
+      document.getElementById('addMemberInfo').textContent =
+        count === 0 ? 'Nenhum selecionado' : `${count} selecionado(s)`;
+    });
+    list.appendChild(item);
+  });
+}
+
+async function removeMemberFromGroup(roomId, uid, nome) {
+  if (!confirm(`Remover ${nome} do grupo?`)) return;
+  try {
+    await updateDoc(doc(db, 'chatRooms', roomId), { members: arrayRemove(uid) });
+    const entry = openRooms.get(roomId);
+    if (entry) {
+      entry.data.members = (entry.data.members || []).filter(m => m !== uid);
+      const membersCountEl = document.getElementById('membersCount');
+      if (membersCountEl) membersCountEl.textContent = entry.data.members.length;
+    }
+    await renderMembersList(roomId);
+    renderAddMemberList(document.getElementById('addMemberSearch').value.trim().toLowerCase());
+    showToast(`${nome} removido(a) do grupo`, 'success');
+  } catch (err) {
+    console.error('Erro ao remover membro:', err);
+    showToast('Erro ao remover membro', 'error');
+  }
+}
+
+async function addSelectedToGroup() {
+  if (addMembersSelected.size === 0) { showToast('Selecione ao menos um usuário', 'error'); return; }
+  if (!managingRoomId) return;
+
+  const btn = document.getElementById('btnConfirmAddMember');
+  try {
+    if (btn) btn.disabled = true;
+    await updateDoc(doc(db, 'chatRooms', managingRoomId), {
+      members: arrayUnion(...addMembersSelected)
+    });
+    const entry = openRooms.get(managingRoomId);
+    if (entry) {
+      entry.data.members = [...new Set([...(entry.data.members || []), ...addMembersSelected])];
+      const membersCountEl = document.getElementById('membersCount');
+      if (membersCountEl) membersCountEl.textContent = entry.data.members.length;
+    }
+    const count = addMembersSelected.size;
+    addMembersSelected.clear();
+    await renderMembersList(managingRoomId);
+    renderAddMemberList('');
+    document.getElementById('addMemberSearch').value = '';
+    document.getElementById('addMemberInfo').textContent = 'Nenhum selecionado';
+    showToast(`${count} membro(s) adicionado(s)`, 'success');
+  } catch (err) {
+    console.error('Erro ao adicionar membros:', err);
+    showToast('Erro ao adicionar membros', 'error');
+  } finally {
+    if (btn) btn.disabled = false;
+  }
 }
 
 // ===== MODAL: CRIAR SALA DE GRUPO =====
