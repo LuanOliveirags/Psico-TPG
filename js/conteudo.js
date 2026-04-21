@@ -99,6 +99,18 @@ const contents = {
         <li>Ofereça apoio e ajude a denunciar</li>
         <li>Seja uma presença positiva online</li>
       </ul>
+
+      <h3>🎬 Assista: Cyberbullying em foco</h3>
+      <div style="position:relative; padding-bottom:56.25%; height:0; overflow:hidden; border-radius:14px; margin-top:12px;">
+        <iframe
+          src="https://www.youtube.com/embed/5RlOBrmyzbY"
+          title="Cyberbullying - Vídeo educativo"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen
+          style="position:absolute; top:0; left:0; width:100%; height:100%; border-radius:14px;">
+        </iframe>
+      </div>
     `
   },
 
