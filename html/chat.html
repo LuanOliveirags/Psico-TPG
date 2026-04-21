@@ -39,26 +39,36 @@
 
   <!-- CHAT -->
   <div class="chat-container">
-    <div class="chat-header-info">
-      <h2 id="chatTitle">💬 Espaço de Escuta</h2>
-      <p id="chatSubtitle">Converse com nosso assistente de apoio</p>
-      <div class="status" id="chatStatus">Online</div>
+
+    <!-- HEADER ESTILO WHATSAPP -->
+    <div class="chat-header-wa">
+      <div class="chat-header-avatar" id="chatAvatarIcon">💬</div>
+      <div class="chat-header-text">
+        <h3 id="chatTitle">Espaço de Escuta</h3>
+        <span class="chat-header-sub">
+          <span class="status-dot" id="chatStatusDot"></span>
+          <span id="chatStatus">Online</span>
+          <span id="chatSubtitle"></span>
+        </span>
+      </div>
+      <div class="chat-header-right">
+        <button class="btn-groups-pill" id="btnMyGroups" title="Minhas salas de grupo" style="display:none;">
+          👥 <span class="group-badge" id="groupBadge">0</span>
+        </button>
+      </div>
     </div>
 
-    <!-- Barra de ações do chat -->
+    <!-- BARRA DE AÇÕES (falar com especialista / voltar) -->
     <div class="chat-actions" id="chatActions">
-      <button class="btn-chat-action" id="btnRequestHuman" title="Falar com especialista">
+      <button class="btn-chat-action" id="btnRequestHuman">
         🧑‍💼 Falar com Especialista
       </button>
-      <button class="btn-chat-action btn-back-bot" id="btnBackToBot" title="Voltar ao assistente" style="display:none;">
+      <button class="btn-chat-action btn-back-bot" id="btnBackToBot" style="display:none;">
         🤖 Voltar ao Assistente
-      </button>
-      <button class="btn-chat-action" id="btnMyGroups" title="Minhas salas de grupo" style="display:none;">
-        👥 Meus Grupos <span class="group-badge" id="groupBadge" style="display:none;">0</span>
       </button>
     </div>
 
-    <!-- Painel de grupos -->
+    <!-- PAINEL DE GRUPOS -->
     <div class="group-rooms-panel" id="groupRoomsPanel" style="display:none;">
       <div class="group-rooms-header">
         <h4>👥 Salas de Grupo</h4>
@@ -69,7 +79,7 @@
       </div>
     </div>
 
-    <!-- Aviso de espera -->
+    <!-- AVISO DE ESPERA -->
     <div class="chat-waiting" id="chatWaiting" style="display:none;">
       <div class="waiting-animation">
         <span class="spinner"></span>
@@ -78,13 +88,17 @@
       <button class="btn btn-outline btn-sm" id="btnCancelWait">Cancelar</button>
     </div>
 
-    <div class="chat-messages" id="chatMessages">
-      <!-- Mensagens aparecem aqui -->
-    </div>
+    <!-- MENSAGENS -->
+    <div class="chat-messages" id="chatMessages"></div>
 
+    <!-- INPUT -->
     <div class="chat-input-area">
-      <input type="text" id="chatInput" placeholder="Digite sua mensagem..." autocomplete="off">
-      <button id="btnSend" title="Enviar">➤</button>
+      <input type="text" id="chatInput" placeholder="Digite uma mensagem..." autocomplete="off">
+      <button id="btnSend" title="Enviar">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+          <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+        </svg>
+      </button>
     </div>
   </div>
 

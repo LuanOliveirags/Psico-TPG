@@ -80,8 +80,7 @@ service cloud.firestore {
 
       // Membros de salas de grupo podem ler
       allow read: if isAuthenticated()
-        && resource.data.type == 'group'
-        && request.auth.uid in resource.data.members;
+        && resource.data.get('members', []).hasAny([request.auth.uid]);
 
       // Atendentes podem ler todas as salas (para ver a fila)
       allow read: if isAtendente();
@@ -112,8 +111,7 @@ service cloud.firestore {
 
         // Membros de grupos podem ler mensagens
         allow read: if isAuthenticated()
-          && get(/databases/$(database)/documents/chatRooms/$(roomId)).data.type == 'group'
-          && request.auth.uid in get(/databases/$(database)/documents/chatRooms/$(roomId)).data.members;
+          && get(/databases/$(database)/documents/chatRooms/$(roomId)).data.get('members', []).hasAny([request.auth.uid]);
 
         // Participantes da sala individual podem enviar mensagens
         allow create: if isAuthenticated()
@@ -122,8 +120,7 @@ service cloud.firestore {
 
         // Membros de grupos podem enviar mensagens
         allow create: if isAuthenticated()
-          && get(/databases/$(database)/documents/chatRooms/$(roomId)).data.type == 'group'
-          && request.auth.uid in get(/databases/$(database)/documents/chatRooms/$(roomId)).data.members
+          && get(/databases/$(database)/documents/chatRooms/$(roomId)).data.get('members', []).hasAny([request.auth.uid])
           && request.resource.data.senderId == request.auth.uid;
 
         // Atendente pode enviar msg de sistema (encerramento)

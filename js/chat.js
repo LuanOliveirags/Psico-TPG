@@ -153,6 +153,7 @@ const btnSend = document.getElementById('btnSend');
 const chatTitle = document.getElementById('chatTitle');
 const chatSubtitle = document.getElementById('chatSubtitle');
 const chatStatusEl = document.getElementById('chatStatus');
+const chatStatusDot = document.getElementById('chatStatusDot');
 const btnRequestHuman = document.getElementById('btnRequestHuman');
 const btnBackToBot = document.getElementById('btnBackToBot');
 const chatWaiting = document.getElementById('chatWaiting');
@@ -162,17 +163,22 @@ const groupBadge = document.getElementById('groupBadge');
 const groupRoomsPanel = document.getElementById('groupRoomsPanel');
 const groupRoomsList = document.getElementById('groupRoomsList');
 const btnCloseGroups = document.getElementById('btnCloseGroups');
+const chatAvatarIcon = document.getElementById('chatAvatarIcon');
 
 // ===== ADICIONAR MENSAGEM NA TELA =====
-function addMessage(text, type = 'bot') {
+function addMessage(text, type = 'bot', senderName = '') {
   const msgDiv = document.createElement('div');
   msgDiv.className = `chat-msg ${type}`;
 
   const now = new Date();
   const time = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
-  const sanitized = text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  msgDiv.innerHTML = `${sanitized}<span class="time">${time}</span>`;
+  let html = '';
+  if (senderName) {
+    html += `<span class="msg-sender">${escapeHtmlChat(senderName)}</span>`;
+  }
+  html += `<span class="msg-text">${escapeHtmlChat(text)}</span><span class="time">${time}</span>`;
+  msgDiv.innerHTML = html;
   chatMessages.appendChild(msgDiv);
   chatMessages.scrollTop = chatMessages.scrollHeight;
 }
@@ -198,45 +204,62 @@ function updateUIForMode(mode) {
   chatMode = mode;
 
   if (mode === 'bot') {
-    chatTitle.textContent = '💬 Espaço de Escuta';
-    chatSubtitle.textContent = 'Converse com nosso assistente de apoio';
+    chatTitle.textContent = 'Espaço de Escuta';
+    chatSubtitle.textContent = '';
     chatStatusEl.textContent = 'Online';
-    chatStatusEl.className = 'status';
+    if (chatStatusDot) { chatStatusDot.className = 'status-dot'; }
+    if (chatAvatarIcon) chatAvatarIcon.textContent = '💬';
     btnRequestHuman.style.display = '';
     btnBackToBot.style.display = 'none';
     chatWaiting.style.display = 'none';
     chatInput.disabled = false;
     btnSend.disabled = false;
   } else if (mode === 'waiting') {
-    chatTitle.textContent = '🧑‍💼 Atendimento Humano';
-    chatSubtitle.textContent = 'Aguardando um especialista...';
-    chatStatusEl.textContent = 'Aguardando';
-    chatStatusEl.className = 'status waiting';
+    chatTitle.textContent = 'Atendimento Humano';
+    chatSubtitle.textContent = '';
+    chatStatusEl.textContent = 'Aguardando...';
+    if (chatStatusDot) { chatStatusDot.className = 'status-dot waiting'; }
+    if (chatAvatarIcon) chatAvatarIcon.textContent = '🧑‍💼';
     btnRequestHuman.style.display = 'none';
     btnBackToBot.style.display = '';
     chatWaiting.style.display = 'flex';
     chatInput.disabled = true;
     btnSend.disabled = true;
   } else if (mode === 'human') {
-    chatTitle.textContent = '🧑‍💼 Atendimento Humano';
-    chatSubtitle.textContent = 'Você está conversando com um especialista';
+    chatTitle.textContent = 'Atendimento Humano';
+    chatSubtitle.textContent = '';
     chatStatusEl.textContent = 'Conectado';
-    chatStatusEl.className = 'status';
+    if (chatStatusDot) { chatStatusDot.className = 'status-dot'; }
+    if (chatAvatarIcon) chatAvatarIcon.textContent = '🧑‍💼';
     btnRequestHuman.style.display = 'none';
     btnBackToBot.style.display = '';
     chatWaiting.style.display = 'none';
     chatInput.disabled = false;
     btnSend.disabled = false;
   } else if (mode === 'group') {
-    chatTitle.textContent = '👥 Sala de Grupo';
-    chatSubtitle.textContent = 'Conversa em grupo com o especialista';
+    chatTitle.textContent = 'Sala de Grupo';
+    chatSubtitle.textContent = '';
     chatStatusEl.textContent = 'Ativo';
-    chatStatusEl.className = 'status';
+    if (chatStatusDot) { chatStatusDot.className = 'status-dot'; }
+    if (chatAvatarIcon) chatAvatarIcon.textContent = '👥';
     btnRequestHuman.style.display = 'none';
     btnBackToBot.style.display = '';
     chatWaiting.style.display = 'none';
     chatInput.disabled = false;
     btnSend.disabled = false;
+  }
+
+  // Botão de grupos: sempre visível se houver grupos, independente do modo
+  updateGroupBadge();
+}
+
+// ===== ATUALIZAR BADGE DE GRUPOS (independente do modo) =====
+function updateGroupBadge() {
+  const count = groupRooms.size;
+  if (btnMyGroups) btnMyGroups.style.display = count > 0 ? '' : 'none';
+  if (groupBadge) {
+    groupBadge.textContent = count;
+    groupBadge.style.display = count > 0 ? '' : 'none';
   }
 }
 
@@ -625,11 +648,13 @@ function listenToGroupRooms(uid) {
       }
     });
 
-    const count = groupRooms.size;
-    if (btnMyGroups) btnMyGroups.style.display = count > 0 ? '' : 'none';
-    if (groupBadge) {
-      groupBadge.textContent = count;
-      groupBadge.style.display = count > 0 ? '' : 'none';
+    updateGroupBadge();
+
+    // Abrir painel automaticamente na primeira vez que grupos são detectados
+    if (groupRooms.size > 0 && groupRoomsPanel && groupRoomsPanel.dataset.autoOpened !== 'true') {
+      groupRoomsPanel.style.display = 'block';
+      groupRoomsPanel.dataset.autoOpened = 'true';
+      renderGroupRoomsList();
     }
 
     // Se estiver em um grupo que foi encerrado, voltar ao bot
@@ -642,7 +667,9 @@ function listenToGroupRooms(uid) {
     if (groupRoomsPanel && groupRoomsPanel.style.display !== 'none') {
       renderGroupRoomsList();
     }
-  }, () => { /* Sem permissão ainda - silenciar */ });
+  }, (err) => {
+    console.warn('Grupos: sem permissão ou erro -', err.code);
+  });
 }
 
 function renderGroupRoomsList() {
@@ -682,7 +709,7 @@ function openGroupRoom(roomId, data) {
   const groupLabel = data.groupName || 'Grupo';
   chatMessages.innerHTML = '';
   updateUIForMode('group');
-  chatTitle.textContent = `👥 ${escapeHtmlChat(groupLabel)}`;
+  chatTitle.textContent = escapeHtmlChat(groupLabel);
   chatSubtitle.textContent = `por ${escapeHtmlChat(data.atendenteName || 'Especialista')}`;
 
   addSystemMessage(`Bem-vindo(a) ao grupo: ${groupLabel}`);
@@ -698,10 +725,8 @@ function openGroupRoom(roomId, data) {
       if (msg.senderId === 'system') {
         addSystemMessage(msg.mensagem);
       } else {
-        const senderLabel = !isOwn && msg.senderName
-          ? `<span class="msg-sender">${escapeHtmlChat(msg.senderName)}</span> `
-          : '';
-        addMessage(senderLabel + escapeHtmlChat(msg.mensagem), isOwn ? 'user' : 'bot');
+        const senderName = !isOwn ? (msg.senderName || '') : '';
+        addMessage(msg.mensagem, isOwn ? 'user' : 'bot', senderName);
       }
     });
   });
