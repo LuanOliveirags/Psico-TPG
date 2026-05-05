@@ -68,6 +68,28 @@ service cloud.firestore {
       allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
     }
 
+    // ===== QUIZ SCORES =====
+    match /quizScores/{userId} {
+      allow read, create, update: if isAuthenticated() && isOwner(userId);
+      allow read: if isAdmin();
+    }
+
+    // ===== TRIAGEM =====
+    match /triagem/{userId} {
+      // Usuário pode criar/ler/atualizar sua própria triagem
+      allow read, create, update: if isAuthenticated() && isOwner(userId);
+      // Atendentes e admins podem ler para priorizar atendimentos
+      allow read: if isAtendente() || isAdmin();
+    }
+
+    // ===== ANOTAÇÕES DE SESSÃO =====
+    match /sessionNotes/{roomId} {
+      // Atendentes podem criar e atualizar anotações
+      allow read, create, update: if isAtendente();
+      // Admin pode ler todas as anotações
+      allow read: if isAdmin();
+    }
+
     // ===== CHAT ROOMS =====
     match /chatRooms/{roomId} {
       // Usuário autenticado pode criar sala (individual ou grupo) se for o userId

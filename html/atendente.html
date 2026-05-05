@@ -39,15 +39,28 @@
   </nav>
 
   <!-- PAINEL DO ATENDENTE -->
-  <div class="container">
-    <div class="page-header">
-      <h2>🧑‍💼 Painel do Especialista</h2>
-      <p>Gerencie os atendimentos e converse com os usuários</p>
+  <div class="especialista-wrap">
+
+    <!-- CABEÇALHO FIXO DO PAINEL -->
+    <div class="especialista-topbar">
+      <div class="especialista-topbar-left">
+        <!-- botão voltar (só mobile, quando chat está aberto) -->
+        <button class="btn-voltar-sidebar" id="btnVoltarSidebar" style="display:none;">
+          ← Conversas
+        </button>
+        <div class="especialista-titulo" id="especialistaTitulo">
+          <h2>🧑‍💼 Painel do Especialista</h2>
+          <p>Gerencie os atendimentos e converse com os usuários</p>
+        </div>
+      </div>
+      <button class="btn-toggle-sidebar" id="btnToggleSidebar" title="Recolher painel">
+        ◀ Recolher
+      </button>
     </div>
 
-    <div class="atendente-layout">
+    <div class="atendente-layout" id="atendenteLayout">
       <!-- PAINEL ESQUERDO -->
-      <div class="atendente-sidebar">
+      <div class="atendente-sidebar" id="atendenteSidebar">
 
         <!-- FILA DE ESPERA -->
         <div class="atendente-queue card">
@@ -80,29 +93,107 @@
 
       </div>
 
-      <!-- CHAT DO ATENDENTE -->
+      <!-- PAINEL DIREITO -->
+      <div class="atendente-right" id="atendenteRight">
       <div class="atendente-chat card" id="atendenteChat" style="display:none;">
+
+        <!-- CABEÇALHO -->
         <div class="atendente-chat-header">
-          <div>
-            <h3 id="chatUserName">Usuário</h3>
-            <span class="chat-room-status" id="chatRoomStatus">Ativo</span>
+          <div class="chat-header-user">
+            <div class="chat-header-avatar" id="chatHeaderAvatar">?</div>
+            <div>
+              <h3 id="chatUserName">Usuário</h3>
+              <span class="chat-room-status" id="chatRoomStatus">Ativo</span>
+            </div>
           </div>
           <div style="display:flex;gap:8px;align-items:center;">
-            <button class="btn btn-outline btn-sm" id="btnManageMembers" style="display:none;" title="Gerenciar membros">
+            <button class="btn btn-outline btn-sm" id="btnManageMembers" style="display:none;">
               👥 <span id="membersCount">0</span> membros
             </button>
-            <button class="btn btn-outline btn-sm" id="btnCloseRoom">Encerrar</button>
+            <button class="btn-chat-expand" id="btnExpandChat" title="Expandir chat">⤢</button>
+            <button class="btn btn-danger btn-sm" id="btnCloseRoom">Encerrar</button>
           </div>
         </div>
 
-        <div class="chat-messages atendente-messages" id="atendenteChatMessages">
-          <!-- Mensagens aparecem aqui -->
+        <!-- ABAS -->
+        <div class="painel-tabs">
+          <button class="painel-tab active" data-tab="chat">💬 Chat</button>
+          <button class="painel-tab" data-tab="notas">📋 Notas</button>
+          <button class="painel-tab" data-tab="triagem">📝 Triagem</button>
         </div>
 
-        <div class="chat-input-area">
-          <input type="text" id="atendenteInput" placeholder="Digite sua mensagem..." autocomplete="off">
-          <button id="btnAtendenteSend" title="Enviar">➤</button>
+        <!-- ABA: CHAT -->
+        <div class="painel-tab-content" id="tabChat">
+          <div class="chat-messages atendente-messages" id="atendenteChatMessages"></div>
+          <div class="chat-input-area">
+            <input type="text" id="atendenteInput" placeholder="Digite sua mensagem..." autocomplete="off">
+            <button id="btnAtendenteSend" title="Enviar">➤</button>
+          </div>
         </div>
+
+        <!-- ABA: NOTAS -->
+        <div class="painel-tab-content" id="tabNotas" style="display:none;">
+          <div class="session-notes-panel">
+            <div class="session-notes-header">
+              <span class="notes-prioridade" id="notesPrioridade"></span>
+              <button class="btn btn-primary btn-sm" id="btnSaveNotes">Salvar anotações</button>
+            </div>
+            <div class="session-notes-body">
+              <div class="notes-row">
+                <label class="notes-label">Presença</label>
+                <select class="notes-select" id="notesPresenca">
+                  <option value="">-- selecione --</option>
+                  <option value="presente">Presente</option>
+                  <option value="ausente">Ausente (sem aviso)</option>
+                  <option value="avisou">Ausente (avisou)</option>
+                  <option value="parcial">Presença parcial</option>
+                </select>
+              </div>
+              <div class="notes-row">
+                <label class="notes-label">Condições da sessão</label>
+                <select class="notes-select" id="notesCondicoes">
+                  <option value="">-- selecione --</option>
+                  <option value="boa">Boa (privacidade, sem ruídos)</option>
+                  <option value="ruido">Com ruídos / sem privacidade</option>
+                  <option value="conexao">Problemas de conexão</option>
+                  <option value="interrupcao">Interrupções frequentes</option>
+                </select>
+              </div>
+              <div class="notes-row">
+                <label class="notes-label">Temas abordados</label>
+                <div class="notes-tags" id="notesTemasWrap">
+                  <label class="notes-tag-item"><input type="checkbox" value="cyberbullying"> Cyberbullying</label>
+                  <label class="notes-tag-item"><input type="checkbox" value="imagem"> Imagens não consensuais</label>
+                  <label class="notes-tag-item"><input type="checkbox" value="autoestima"> Autoestima</label>
+                  <label class="notes-tag-item"><input type="checkbox" value="ansiedade"> Ansiedade</label>
+                  <label class="notes-tag-item"><input type="checkbox" value="perseguicao"> Perseguição online</label>
+                  <label class="notes-tag-item"><input type="checkbox" value="familia"> Suporte familiar</label>
+                  <label class="notes-tag-item"><input type="checkbox" value="limites"> Limites digitais</label>
+                  <label class="notes-tag-item"><input type="checkbox" value="crise"> Crise/urgência</label>
+                </div>
+              </div>
+              <div class="notes-row">
+                <label class="notes-label">Observações livres</label>
+                <textarea class="notes-textarea" id="notesTexto" placeholder="Registre o que foi discutido, próximos passos, encaminhamentos..." rows="4" maxlength="1000"></textarea>
+              </div>
+              <div class="notes-row">
+                <label class="notes-label">Próxima sessão sugerida</label>
+                <input type="date" class="notes-select" id="notesProximaSessao">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ABA: TRIAGEM -->
+        <div class="painel-tab-content" id="tabTriagem" style="display:none;">
+          <div class="triagem-view" id="triagemView">
+            <div class="triagem-loading" id="triagemLoading">
+              <span>⏳</span><p>Carregando dados da triagem...</p>
+            </div>
+            <div id="triagemContent" style="display:none;"></div>
+          </div>
+        </div>
+
       </div>
 
       <!-- Placeholder quando não há chat ativo -->
@@ -111,8 +202,9 @@
         <h3>Selecione um atendimento</h3>
         <p>Aceite um usuário da fila ou crie uma sala de grupo</p>
       </div>
+      </div> <!-- /.atendente-right -->
     </div>
-  </div>
+  </div> <!-- /.especialista-wrap -->
 
   <!-- MODAL: GERENCIAR MEMBROS DO GRUPO -->
   <div class="group-modal-overlay" id="membersModal" style="display:none;">

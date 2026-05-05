@@ -157,6 +157,21 @@ async function initDashboard(user) {
     addNavLink('admin.html', '⚙️ Admin');
   }
 
+  // Exibir banner de triagem somente para adolescentes que ainda não responderam
+  const triagemBanner = document.getElementById('triagemBanner');
+  if (triagemBanner) {
+    try {
+      const userDocAgain = await getDoc(doc(db, 'users', user.uid));
+      if (userDocAgain.exists()) {
+        const d = userDocAgain.data();
+        const isAdolescente = !d.role || d.role === 'user';
+        if (isAdolescente && !d.triagemCompleta) {
+          triagemBanner.style.display = 'flex';
+        }
+      }
+    } catch { /* silenciar */ }
+  }
+
   // Carregar estatísticas
   await loadStats(user.uid);
 

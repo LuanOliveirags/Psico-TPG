@@ -218,6 +218,96 @@ const contents = {
         <li>Se algo te incomoda online, se afaste — está tudo bem</li>
       </ul>
     `
+  },
+
+  violencia: {
+    title: '🚨 Violência Online: Conheça Seus Direitos',
+    body: `
+      <p>A violência no ambiente digital é real e tem consequências graves. Perseguição online, compartilhamento de imagens íntimas sem consentimento e assédio são crimes no Brasil.</p>
+
+      <h3>O que é considerado violência online?</h3>
+      <ul>
+        <li><strong>Perseguição online (stalking):</strong> Monitorar, rastrear ou perseguir alguém repetidamente por meios digitais</li>
+        <li><strong>Extorsão digital (sextorsão):</strong> Usar imagens íntimas como ameaça para obter dinheiro ou outros favores</li>
+        <li><strong>Compartilhamento não consensual de imagens:</strong> Divulgar fotos ou vídeos íntimos sem a permissão da pessoa</li>
+        <li><strong>Incitação ao ódio:</strong> Publicações que estimulam discriminação ou violência</li>
+        <li><strong>Assédio online:</strong> Mensagens repetidas e indesejadas com caráter sexual ou intimidador</li>
+      </ul>
+
+      <div class="tip-box tip-danger">
+        <p>⚖️ <strong>Lei 13.718/2018 – Importunação Sexual Digital:</strong> compartilhar, sem consentimento, imagem íntima, foto, vídeo ou áudio de nudez é crime. Pena: reclusão de 1 a 5 anos, mais multa.</p>
+      </div>
+
+      <h3>O que fazer se você for vítima?</h3>
+      <ul>
+        <li><strong>Não se culpe:</strong> A responsabilidade é sempre de quem praticou o ato</li>
+        <li><strong>Documente tudo:</strong> Prints, URLs, nomes de perfis — guarde as evidências antes de denunciar</li>
+        <li><strong>Solicite a remoção:</strong> Use as ferramentas de denúncia das plataformas (Instagram, WhatsApp, TikTok, etc.)</li>
+        <li><strong>Registre boletim de ocorrência:</strong> Procure uma delegacia comum ou Delegacia da Mulher</li>
+        <li><strong>Busque apoio:</strong> Converse com alguém de confiança ou acesse este serviço</li>
+      </ul>
+
+      <h3>Canais de denúncia e apoio:</h3>
+      <ul>
+        <li><strong>SaferNet Brasil:</strong> safernet.org.br — denúncia de crimes na internet</li>
+        <li><strong>Delegacia Virtual:</strong> disponível em vários estados</li>
+        <li><strong>Ligue 180:</strong> Central de Atendimento à Mulher (violência de gênero)</li>
+        <li><strong>CVV 188:</strong> apoio emocional em crise, 24 horas</li>
+        <li><strong>MMFDH – Ligue 100:</strong> Ministério dos Direitos Humanos</li>
+      </ul>
+
+      <div class="tip-box">
+        <p>💜 Se você está passando por isso agora, <strong>você não está sozinho(a)</strong>. Converse com um dos especialistas deste serviço pelo Chat.</p>
+      </div>
+    `
+  },
+
+  saudedigital: {
+    title: '🧠 Saúde Mental e Redes Sociais',
+    body: `
+      <p>O ambiente digital faz parte da nossa vida, mas seu uso excessivo ou inadequado pode afetar diretamente nossa <strong>saúde mental</strong>. Entender essa relação é o primeiro passo para um uso mais saudável.</p>
+
+      <h3>Como as redes sociais podem afetar sua saúde mental?</h3>
+      <ul>
+        <li><strong>Ansiedade social:</strong> Medo constante de não ter curtidas, comentários ou de ser excluído(a)</li>
+        <li><strong>Depressão:</strong> Comparação com vidas "perfeitas" cria sensação de inadequação</li>
+        <li><strong>Sono prejudicado:</strong> Luz azul das telas e hiperativação mental dificultam adormecer</li>
+        <li><strong>FOMO (medo de ficar por fora):</strong> Ansiedade de não estar presente em tudo que acontece online</li>
+        <li><strong>Vício em validação:</strong> Dependência de curtidas e comentários para se sentir valorizado(a)</li>
+        <li><strong>Exposição a conteúdos prejudiciais:</strong> Algoritmos que amplificam conteúdo negativo ou que reforça inseguranças</li>
+      </ul>
+
+      <h3>Pressão estética e padrões irreais:</h3>
+      <p>Influenciadores e algoritmos frequentemente promovem padrões de beleza que são <strong>editados, filtrados e impossíveis de alcançar</strong> na vida real. Isso pode causar:</p>
+      <ul>
+        <li>Insatisfação com o próprio corpo</li>
+        <li>Busca por procedimentos estéticos desnecessários</li>
+        <li>Transtornos alimentares</li>
+        <li>Baixíssima autoestima</li>
+      </ul>
+
+      <div class="tip-box">
+        <p>💡 Pesquisas mostram que reduzir o uso das redes sociais para menos de 30 minutos por dia pode diminuir significativamente sintomas de ansiedade e depressão em adolescentes.</p>
+      </div>
+
+      <h3>Sinais de alerta para buscar ajuda:</h3>
+      <ul>
+        <li>Você se sente mal após usar as redes sociais com frequência</li>
+        <li>Tem dificuldade de parar de usar o celular mesmo quando quer</li>
+        <li>Pensamentos sobre aparência ou comparações tomam muito espaço na sua cabeça</li>
+        <li>Prefere o mundo online ao mundo real</li>
+        <li>Sente ansiedade quando fica sem o celular</li>
+      </ul>
+
+      <h3>Estratégias de autocuidado digital:</h3>
+      <ul>
+        <li><strong>Detox digital:</strong> Um dia por semana longe das redes</li>
+        <li><strong>Curadoria do feed:</strong> Siga perfis que te inspiram de forma saudável; deixe de seguir os que causam mal-estar</li>
+        <li><strong>Alerta de tempo de uso:</strong> Configure lembretes de limite de tempo nos apps</li>
+        <li><strong>Celebre conquistas offline:</strong> Valorize realizações reais, não apenas as que você posta</li>
+        <li><strong>Converse sobre isso:</strong> Compartilhar suas experiências com amigos ou profissionais ajuda muito</li>
+      </ul>
+    `
   }
 };
 

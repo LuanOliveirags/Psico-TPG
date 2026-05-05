@@ -37,42 +37,130 @@
     </div>
   </nav>
 
-  <!-- CONTEÚDO -->
   <main class="container">
-    <div class="quiz-container fade-in">
 
-      <div class="quiz-header">
-        <h2>🎯 Quiz: Segurança e Cidadania Digital</h2>
-        <p style="color: var(--text-light);">Teste seus conhecimentos sobre como se proteger no mundo online.</p>
-        <div class="quiz-progress">
-          <div class="quiz-progress-bar" id="progressBar" style="width: 0%"></div>
+    <!-- ===== GRADE DE TEMAS ===== -->
+    <div id="viewGrid">
+      <div class="page-header fade-in">
+        <h2>🎯 Quiz Digital</h2>
+        <p>Escolha um tema e teste seus conhecimentos.</p>
+      </div>
+
+      <div class="content-grid">
+
+        <div class="card content-card fade-in quiz-topic-card" data-topic="cyberbullying">
+          <div class="card-banner cyber">🛡️</div>
+          <div class="card-body">
+            <h3>Cyberbullying</h3>
+            <p>Você sabe identificar e reagir ao cyberbullying?</p>
+            <div class="quiz-card-meta">
+              <span class="tag">4 perguntas</span>
+              <span class="quiz-score-badge" id="score-cyberbullying" style="display:none;"></span>
+            </div>
+          </div>
         </div>
-        <p style="font-size:0.8rem; color:var(--text-light); margin-top:8px;">
-          Pergunta <span id="currentQ">1</span> de <span id="totalQ">8</span>
-        </p>
-      </div>
 
-      <!-- Área da pergunta -->
-      <div class="card quiz-card" id="quizCard">
-        <div class="question-number" id="questionLabel">Pergunta 1</div>
-        <h3 id="questionText">Carregando...</h3>
-        <div class="quiz-options" id="optionsContainer"></div>
-        <div class="quiz-explanation" id="explanation"></div>
-        <button class="btn btn-primary" id="btnNext" style="margin-top:20px; display:none;">
-          Próxima →
-        </button>
-      </div>
+        <div class="card content-card fade-in quiz-topic-card" data-topic="privacidade">
+          <div class="card-banner privacy">🔒</div>
+          <div class="card-body">
+            <h3>Privacidade Online</h3>
+            <p>Como você protege seus dados e sua intimidade?</p>
+            <div class="quiz-card-meta">
+              <span class="tag">4 perguntas</span>
+              <span class="quiz-score-badge" id="score-privacidade" style="display:none;"></span>
+            </div>
+          </div>
+        </div>
 
-      <!-- Resultado -->
-      <div class="card quiz-result" id="quizResult">
-        <div class="score-circle" id="scoreCircle">0</div>
-        <h3 id="resultTitle">Parabéns!</h3>
-        <p id="resultText">Você concluiu o quiz.</p>
-        <button class="btn btn-primary" id="btnRestart">🔄 Fazer novamente</button>
-        <a href="dashboard.html" class="btn btn-outline" style="margin-left:8px;">🏠 Voltar</a>
-      </div>
+        <div class="card content-card fade-in quiz-topic-card" data-topic="autoestima">
+          <div class="card-banner estima">💪</div>
+          <div class="card-body">
+            <h3>Autoestima Digital</h3>
+            <p>Redes sociais e sua autoestima — o que você sabe?</p>
+            <div class="quiz-card-meta">
+              <span class="tag">4 perguntas</span>
+              <span class="quiz-score-badge" id="score-autoestima" style="display:none;"></span>
+            </div>
+          </div>
+        </div>
 
+        <div class="card content-card fade-in quiz-topic-card" data-topic="limites">
+          <div class="card-banner limites">⚖️</div>
+          <div class="card-body">
+            <h3>Limites Digitais</h3>
+            <p>Você sabe dizer não e estabelecer limites online?</p>
+            <div class="quiz-card-meta">
+              <span class="tag">4 perguntas</span>
+              <span class="quiz-score-badge" id="score-limites" style="display:none;"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card content-card fade-in quiz-topic-card" data-topic="violencia">
+          <div class="card-banner violencia">🚨</div>
+          <div class="card-body">
+            <h3>Violência Online</h3>
+            <p>Conheça seus direitos e saiba como se proteger.</p>
+            <div class="quiz-card-meta">
+              <span class="tag">4 perguntas</span>
+              <span class="quiz-score-badge" id="score-violencia" style="display:none;"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card content-card fade-in quiz-topic-card" data-topic="saudedigital">
+          <div class="card-banner saudedigital">🧠</div>
+          <div class="card-body">
+            <h3>Saúde Mental Digital</h3>
+            <p>Como o ambiente digital impacta seu bem-estar?</p>
+            <div class="quiz-card-meta">
+              <span class="tag">4 perguntas</span>
+              <span class="quiz-score-badge" id="score-saudedigital" style="display:none;"></span>
+            </div>
+          </div>
+        </div>
+
+      </div>
     </div>
+
+    <!-- ===== TELA DO QUIZ ===== -->
+    <div id="viewQuiz" style="display:none;">
+      <div class="quiz-container fade-in">
+
+        <div class="quiz-header">
+          <button class="btn-back-quiz" id="btnBackToGrid">← Voltar aos temas</button>
+          <h2 id="quizTopicTitle">Quiz</h2>
+          <div class="quiz-progress">
+            <div class="quiz-progress-bar" id="progressBar" style="width: 0%"></div>
+          </div>
+          <p style="font-size:0.8rem; color:var(--text-light); margin-top:8px;">
+            Pergunta <span id="currentQ">1</span> de <span id="totalQ">4</span>
+          </p>
+        </div>
+
+        <div class="card quiz-card" id="quizCard">
+          <div class="question-number" id="questionLabel">Pergunta 1</div>
+          <h3 id="questionText">Carregando...</h3>
+          <div class="quiz-options" id="optionsContainer"></div>
+          <div class="quiz-explanation" id="explanation"></div>
+          <button class="btn btn-primary" id="btnNext" style="margin-top:20px; display:none;">
+            Próxima →
+          </button>
+        </div>
+
+        <div class="card quiz-result" id="quizResult" style="display:none;">
+          <div class="score-circle" id="scoreCircle">0%</div>
+          <h3 id="resultTitle">Parabéns!</h3>
+          <p id="resultText">Você concluiu o quiz.</p>
+          <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:8px;">
+            <button class="btn btn-primary" id="btnRestart">🔄 Tentar novamente</button>
+            <button class="btn btn-outline" id="btnBackResult">← Outros temas</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
   </main>
 
   <div class="toast" id="toast"></div>

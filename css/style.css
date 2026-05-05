@@ -47,6 +47,7 @@ body {
   min-height: 100vh;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
 
 a {
@@ -1391,6 +1392,959 @@ a {
   background: linear-gradient(135deg, #d97706, #f59e0b, #fbbf24);
 }
 
+.content-card .card-banner.violencia {
+  background: linear-gradient(135deg, #be123c, #e11d48, #fb7185);
+}
+
+.content-card .card-banner.saudedigital {
+  background: linear-gradient(135deg, #0e7490, #0891b2, #22d3ee);
+}
+
+.tag-danger {
+  background: rgba(239, 68, 68, 0.12);
+  color: var(--danger);
+}
+
+/* =================================================
+   QUIZ - GRADE DE TEMAS
+   =================================================== */
+.quiz-topic-card {
+  cursor: pointer;
+}
+
+.quiz-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.quiz-score-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 99px;
+}
+
+.score-good {
+  background: rgba(16, 185, 129, 0.12);
+  color: var(--success);
+}
+
+.score-ok {
+  background: rgba(245, 158, 11, 0.12);
+  color: #d97706;
+}
+
+.btn-back-quiz {
+  background: none;
+  border: none;
+  color: var(--primary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: inherit;
+}
+
+.btn-back-quiz:hover {
+  text-decoration: underline;
+}
+
+/* =================================================
+   CARD SOS
+   =================================================== */
+.sos-card {
+  border: 2px solid rgba(239, 68, 68, 0.3);
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.05), rgba(239, 68, 68, 0.02));
+}
+
+.sos-card:hover {
+  border-color: var(--danger);
+  box-shadow: 0 4px 24px rgba(239, 68, 68, 0.15);
+}
+
+.badge-danger {
+  background: rgba(239, 68, 68, 0.12);
+  color: var(--danger);
+}
+
+/* =================================================
+   BANNER DE TRIAGEM
+   =================================================== */
+.triagem-banner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: linear-gradient(135deg, rgba(108, 99, 255, 0.08), rgba(108, 99, 255, 0.04));
+  border: 1.5px solid rgba(108, 99, 255, 0.3);
+  border-radius: 16px;
+  padding: 18px 24px;
+  margin-top: 24px;
+  flex-wrap: wrap;
+}
+
+.triagem-banner-icon {
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+.triagem-banner-text {
+  flex: 1;
+  min-width: 200px;
+}
+
+.triagem-banner-text strong {
+  display: block;
+  font-size: 1rem;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.triagem-banner-text p {
+  font-size: 0.85rem;
+  color: var(--text-light);
+  margin: 0;
+}
+
+/* =================================================
+   PÁGINA DE TRIAGEM
+   =================================================== */
+.triagem-body {
+  background: var(--bg);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.triagem-header {
+  text-align: center;
+  padding: 28px 24px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.triagem-header .brand {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.triagem-header p {
+  font-size: 0.88rem;
+  color: var(--text-light);
+  margin: 8px 0 0;
+}
+
+.triagem-main {
+  max-width: 600px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 24px 20px 40px;
+}
+
+/* =================================================
+   BANNER TRIAGEM — TOPO DO DASHBOARD
+   =================================================== */
+.triagem-topo {
+  background: linear-gradient(135deg, #6C63FF, #a855f7);
+  color: #fff;
+  padding: 0;
+  position: sticky;
+  top: 64px;
+  z-index: 90;
+  box-shadow: 0 4px 16px rgba(108, 99, 255, 0.35);
+}
+
+.triagem-topo-inner {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 16px 24px;
+  flex-wrap: wrap;
+}
+
+.triagem-topo-left {
+  flex: 1;
+  min-width: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.triagem-topo-tag {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
+.triagem-topo-left strong {
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.triagem-topo-left p {
+  font-size: 0.82rem;
+  opacity: 0.88;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.triagem-topo-btn {
+  flex-shrink: 0;
+  background: #fff;
+  color: #6C63FF;
+  font-weight: 700;
+  font-size: 0.88rem;
+  padding: 10px 22px;
+  border-radius: 10px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.triagem-topo-btn:hover {
+  background: #f0eeff;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 600px) {
+  .triagem-topo-btn {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* Avisos iniciais da triagem */
+.triagem-aviso-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.triagem-aviso {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 14px 18px;
+  border-radius: 14px;
+  border-left: 4px solid;
+  font-size: 0.86rem;
+  line-height: 1.5;
+}
+
+.triagem-aviso .aviso-icone {
+  font-size: 1.3rem;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.triagem-aviso strong {
+  display: block;
+  margin-bottom: 3px;
+  font-size: 0.88rem;
+}
+
+.triagem-aviso p {
+  margin: 0;
+  color: var(--text-light);
+}
+
+.triagem-aviso-destaque {
+  background: rgba(108, 99, 255, 0.07);
+  border-color: var(--primary);
+}
+
+.triagem-aviso-importante {
+  background: rgba(16, 185, 129, 0.07);
+  border-color: var(--success);
+}
+
+.triagem-aviso-info {
+  background: rgba(245, 158, 11, 0.07);
+  border-color: #f59e0b;
+}
+
+.triagem-aviso-crise {
+  background: rgba(239, 68, 68, 0.07);
+  border-color: var(--danger);
+}
+
+.triagem-progress-wrap {
+  height: 6px;
+  background: var(--border);
+  border-radius: 99px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.triagem-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  border-radius: 99px;
+  transition: width 0.4s ease;
+}
+
+.triagem-step-label {
+  font-size: 0.8rem;
+  color: var(--text-light);
+  text-align: right;
+  margin: 0 0 20px;
+}
+
+.triagem-card {
+  background: var(--card);
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  padding: 32px 28px;
+  box-shadow: var(--shadow);
+}
+
+.triagem-step {
+  display: none;
+}
+
+.triagem-step.active {
+  display: block;
+  animation: fadeIn 0.3s ease;
+}
+
+.triagem-icon {
+  font-size: 2.5rem;
+  margin-bottom: 12px;
+}
+
+.triagem-card h2 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 8px;
+}
+
+.triagem-card > .triagem-step > p {
+  color: var(--text-light);
+  font-size: 0.9rem;
+  margin: 0 0 24px;
+  line-height: 1.6;
+}
+
+.triagem-label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+
+.required {
+  color: var(--danger);
+}
+
+.triagem-check-group,
+.triagem-radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.triagem-check-item,
+.triagem-radio-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 16px;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 0.88rem;
+  color: var(--text);
+  transition: border-color 0.2s, background 0.2s;
+  line-height: 1.4;
+}
+
+.triagem-check-item:hover,
+.triagem-radio-item:hover {
+  border-color: var(--primary);
+  background: rgba(108, 99, 255, 0.04);
+}
+
+.triagem-check-item input,
+.triagem-radio-item input {
+  margin-top: 2px;
+  flex-shrink: 0;
+  accent-color: var(--primary);
+}
+
+.triagem-textarea {
+  width: 100%;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-family: inherit;
+  font-size: 0.88rem;
+  color: var(--text);
+  background: var(--bg);
+  resize: vertical;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.triagem-textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.triagem-alerta {
+  margin-top: 20px;
+  padding: 16px 20px;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1.5px solid rgba(239, 68, 68, 0.3);
+  border-radius: 12px;
+  font-size: 0.88rem;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.triagem-nav {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+/* =================================================
+   ABAS DO PAINEL DO ESPECIALISTA
+   =================================================== */
+.painel-tabs {
+  display: flex;
+  border-bottom: 2px solid var(--border);
+  background: var(--card);
+  flex-shrink: 0;
+}
+
+.painel-tab {
+  flex: 1;
+  padding: 12px 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border: none;
+  background: none;
+  color: var(--text-light);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: color 0.2s, border-color 0.2s;
+  font-family: inherit;
+}
+
+.painel-tab:hover {
+  color: var(--primary);
+}
+
+.painel-tab.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+
+.painel-tab-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* Cabeçalho com avatar */
+.chat-header-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.chat-header-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  font-weight: 700;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.btn-danger {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--danger);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.btn-danger:hover {
+  background: var(--danger);
+  color: #fff;
+  border-color: var(--danger);
+}
+
+/* =================================================
+   VISUALIZAÇÃO DA TRIAGEM NO PAINEL
+   =================================================== */
+.triagem-view {
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.triagem-loading,
+.triagem-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 40px 20px;
+  color: var(--text-light);
+  font-size: 0.88rem;
+  text-align: center;
+}
+
+.triagem-loading span,
+.triagem-empty span {
+  font-size: 2rem;
+}
+
+.triagem-view-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.triagem-data {
+  font-size: 0.75rem;
+  color: var(--text-light);
+}
+
+.triagem-view-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.triagem-view-section {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+
+.triagem-view-section h4 {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-light);
+  margin: 0 0 8px;
+}
+
+.triagem-view-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.triagem-view-item {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.triagem-item-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-light);
+}
+
+.triagem-item-valor {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.valor-alerta {
+  color: #d97706;
+  font-weight: 600;
+}
+
+.valor-urgente {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+.triagem-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.triagem-tag {
+  font-size: 0.78rem;
+  padding: 4px 10px;
+  background: rgba(108, 99, 255, 0.1);
+  color: var(--primary);
+  border-radius: 99px;
+  font-weight: 500;
+}
+
+.triagem-vazio {
+  font-size: 0.82rem;
+  color: var(--text-light);
+  font-style: italic;
+}
+
+.triagem-comentario {
+  font-size: 0.85rem;
+  color: var(--text);
+  line-height: 1.5;
+  margin: 0;
+  font-style: italic;
+}
+
+/* =================================================
+   PAINEL DE ANOTAÇÕES DO ATENDENTE
+   =================================================== */
+.session-notes-panel {
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  padding: 16px 20px;
+}
+
+.session-notes-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 16px;
+}
+
+.session-notes-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.notes-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.notes-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.notes-select {
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-family: inherit;
+  font-size: 0.85rem;
+  color: var(--text);
+  background: var(--card);
+  cursor: pointer;
+}
+
+.notes-select:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.notes-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.notes-tag-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 99px;
+  font-size: 0.8rem;
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.notes-tag-item:has(input:checked) {
+  border-color: var(--primary);
+  background: rgba(108, 99, 255, 0.1);
+  color: var(--primary);
+}
+
+.notes-tag-item input {
+  accent-color: var(--primary);
+}
+
+.notes-textarea {
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-family: inherit;
+  font-size: 0.85rem;
+  color: var(--text);
+  background: var(--card);
+  resize: vertical;
+}
+
+.notes-textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.notes-prioridade {
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 99px;
+}
+
+.prioridade-alta {
+  background: rgba(239, 68, 68, 0.12);
+  color: var(--danger);
+}
+
+.prioridade-media {
+  background: rgba(245, 158, 11, 0.12);
+  color: #d97706;
+}
+
+.prioridade-baixa {
+  background: rgba(16, 185, 129, 0.12);
+  color: var(--success);
+}
+
+/* =================================================
+   TIP-BOX DANGER
+   =================================================== */
+.tip-box.tip-danger {
+  background: rgba(239, 68, 68, 0.08);
+  border-left-color: var(--danger);
+  color: var(--text);
+}
+
+/* =================================================
+   PÁGINA SOS
+   =================================================== */
+.sos-hero {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 20px 24px;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.08), rgba(239, 68, 68, 0.03));
+  border: 1.5px solid rgba(239, 68, 68, 0.25);
+  border-radius: 16px;
+}
+
+.sos-hero-icon {
+  font-size: 2.5rem;
+  flex-shrink: 0;
+}
+
+.sos-hero h2 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 0 0 6px;
+}
+
+.sos-hero p {
+  font-size: 0.9rem;
+  color: var(--text-light);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.sos-section {
+  margin-top: 32px;
+}
+
+.sos-section-alert {
+  background: rgba(239, 68, 68, 0.04);
+  border: 1.5px solid rgba(239, 68, 68, 0.2);
+  border-radius: 16px;
+  padding: 24px;
+}
+
+.sos-section-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 16px;
+}
+
+.sos-section-desc {
+  font-size: 0.88rem;
+  color: var(--text-light);
+  margin: 0 0 16px;
+  line-height: 1.6;
+}
+
+.sos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px;
+}
+
+.sos-card-item {
+  display: flex;
+  gap: 14px;
+  padding: 18px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  align-items: flex-start;
+  transition: box-shadow 0.2s;
+}
+
+.sos-card-item:hover {
+  box-shadow: var(--shadow);
+}
+
+.sos-urgente {
+  border-color: rgba(239, 68, 68, 0.35);
+  background: rgba(239, 68, 68, 0.03);
+}
+
+.sos-card-icon {
+  font-size: 1.8rem;
+  flex-shrink: 0;
+}
+
+.sos-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sos-card-body strong {
+  font-size: 0.92rem;
+  color: var(--text);
+}
+
+.sos-card-body p {
+  font-size: 0.82rem;
+  color: var(--text-light);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.sos-btn {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  text-decoration: none;
+  background: var(--bg);
+  transition: border-color 0.2s, background 0.2s;
+  width: fit-content;
+}
+
+.sos-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.sos-btn-primary {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+
+.sos-btn-primary:hover {
+  background: var(--primary-dark, #5a52d5);
+  color: #fff;
+}
+
+.sos-info {
+  font-size: 0.78rem;
+  color: var(--primary);
+  font-weight: 600;
+  margin-top: 6px;
+  word-break: break-all;
+}
+
+.sos-steps {
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sos-steps li {
+  font-size: 0.88rem;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.plataforma-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.plataforma-item {
+  padding: 14px 16px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.plataforma-item strong {
+  display: block;
+  font-size: 0.88rem;
+  margin-bottom: 6px;
+}
+
+.plataforma-item p {
+  font-size: 0.78rem;
+  color: var(--text-light);
+  margin: 0;
+  line-height: 1.4;
+}
+
 .content-card .card-body {
   padding: 20px 22px 22px;
 }
@@ -2031,21 +2985,132 @@ a {
 }
 
 /* ===== PAINEL DO ATENDENTE ===== */
+.especialista-wrap {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 64px);
+  overflow: hidden;
+  padding: 0 24px;
+  box-sizing: border-box;
+}
+
+.especialista-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 0 14px;
+  flex-shrink: 0;
+  gap: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.especialista-topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.especialista-titulo h2 {
+  font-size: 1.25rem;
+  margin: 0 0 2px;
+  font-weight: 700;
+}
+
+.especialista-titulo p {
+  font-size: 0.8rem;
+  color: var(--text-light);
+  margin: 0;
+}
+
+.btn-toggle-sidebar {
+  flex-shrink: 0;
+  background: var(--bg-card);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 7px 16px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-light);
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.btn-toggle-sidebar:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.btn-voltar-sidebar {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--primary);
+  cursor: pointer;
+  font-family: inherit;
+  padding: 4px 0;
+  white-space: nowrap;
+}
+
+@media (min-width: 769px) {
+  .btn-voltar-sidebar {
+    display: none !important;
+  }
+}
+
+/* Grid: sidebar always col-1, right panel always col-2 */
 .atendente-layout {
   display: grid;
-  grid-template-columns: 320px 1fr;
-  gap: 20px;
-  padding-bottom: 40px;
-  height: calc(100vh - 180px);
+  grid-template-columns: 300px 1fr;
+  gap: 16px;
+  flex: 1;
+  min-height: 0;
+  padding: 16px 0;
+  overflow: hidden;
+  transition: grid-template-columns 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Sidebar oculta (desktop toggle) */
+.atendente-layout.sidebar-hidden {
+  grid-template-columns: 0 1fr;
+  gap: 0;
+}
+
+.atendente-layout.sidebar-hidden .atendente-sidebar {
+  display: none;
 }
 
 /* Sidebar esquerda: fila + ativos */
 .atendente-sidebar {
+  grid-column: 1;
+  grid-row: 1;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
   overflow-y: auto;
   min-width: 0;
+}
+
+/* Right column wrapper: always occupies col-2, prevents auto-place bugs */
+.atendente-right {
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Expanded mode: cap width so chat doesn't stretch too wide on large screens */
+.atendente-layout.sidebar-hidden .atendente-right {
+  max-width: 960px;
+  width: 100%;
 }
 
 .atendente-queue {
@@ -2478,20 +3543,100 @@ a {
   flex-shrink: 0;
 }
 
+/* Botão expandir chat */
+.btn-chat-expand {
+  background: none;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 5px 10px;
+  font-size: 1rem;
+  color: var(--text-light);
+  cursor: pointer;
+  font-family: inherit;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+  flex-shrink: 0;
+}
+
+.btn-chat-expand:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--primary-light);
+}
+
+.btn-chat-expand.expanded {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--primary-light);
+}
+
+/* ===== MODO TELA CHEIA DO CHAT ===== */
+.atendente-chat.chat-fullscreen {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 600 !important;
+  border-radius: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: 100vw !important;
+  margin: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  animation: chatExpandIn 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes chatExpandIn {
+  from { opacity: 0.7; transform: scale(0.97); }
+  to   { opacity: 1;   transform: scale(1); }
+}
+
+/* Cabeçalho com mais respiro */
+.atendente-chat.chat-fullscreen .atendente-chat-header {
+  padding: 18px 32px 16px;
+  flex-shrink: 0;
+}
+
+/* Centraliza o conteúdo da aba para boa legibilidade em telas largas */
+.atendente-chat.chat-fullscreen .painel-tab-content {
+  max-width: 900px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* Anula a margin negativa do card normal no input */
+.atendente-chat.chat-fullscreen .chat-input-area {
+  margin: 0 !important;
+  border-radius: 0 0 0 0;
+  border-top: 1px solid var(--border);
+  padding: 12px 24px;
+}
+
+/* Botão expandir ativo */
+.atendente-chat.chat-fullscreen .btn-chat-expand {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--primary-light);
+}
+
 /* Atendente Chat */
 .atendente-chat {
+  flex: 1;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  min-height: 0;
 }
 
 .atendente-chat-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-bottom: 16px;
+  padding-bottom: 14px;
   border-bottom: 1px solid var(--border);
-  margin-bottom: 0;
+  flex-shrink: 0;
 }
 
 .atendente-chat-header h3 {
@@ -2510,34 +3655,40 @@ a {
   overflow-y: auto;
   margin: 0 -24px;
   padding: 16px 24px;
+  min-height: 0;
 }
 
 .atendente-chat .chat-input-area {
   margin: 0 -24px -24px;
   border-radius: 0 0 var(--radius) var(--radius);
+  flex-shrink: 0;
+  overflow: hidden;
 }
 
 .atendente-chat-placeholder {
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: 16px;
   text-align: center;
   color: var(--text-light);
 }
 
 .atendente-chat-placeholder span {
-  font-size: 3rem;
+  font-size: 4rem;
 }
 
 .atendente-chat-placeholder h3 {
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   color: var(--text);
+  font-weight: 600;
 }
 
 .atendente-chat-placeholder p {
-  font-size: 0.85rem;
+  font-size: 0.87rem;
+  max-width: 280px;
 }
 
 /* ===== ANIMAÇÕES ===== */
@@ -2789,14 +3940,36 @@ a {
     font-size: 0.75rem;
   }
 
+  .especialista-wrap {
+    height: auto;
+    min-height: calc(100vh - 64px);
+    padding: 0 12px;
+  }
+
+  .btn-toggle-sidebar {
+    display: none;
+  }
+
   .atendente-layout {
     grid-template-columns: 1fr;
+    grid-template-rows: auto;
     height: auto;
+    flex: none;
+    overflow: visible;
+    padding-bottom: 0;
   }
 
   .atendente-sidebar {
-    max-height: 350px;
-    overflow-y: auto;
+    grid-column: 1;
+    grid-row: auto;
+    max-height: none;
+    overflow-y: visible;
+  }
+
+  .atendente-right {
+    grid-column: 1;
+    grid-row: auto;
+    overflow: visible;
   }
 
   .atendente-queue {
@@ -2805,7 +3978,18 @@ a {
   }
 
   .atendente-chat {
-    min-height: 400px;
+    min-height: calc(100vh - 120px);
+    height: calc(100vh - 120px);
+  }
+
+  .atendente-chat .atendente-messages {
+    flex: 1;
+    min-height: 0;
+  }
+
+  .atendente-chat-placeholder {
+    min-height: 200px;
+    flex: none;
   }
 
   .admin-user-card {

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conexão Consciente - SOS Digital</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="manifest" href="../manifest.json">
+  <meta name="theme-color" content="#6C63FF">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="apple-touch-icon" href="../icons/icon-192.svg">
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="container">
+      <a href="dashboard.html" class="brand">
+        <span>🧠</span> Conexão Consciente
+      </a>
+      <button class="hamburger" id="hamburger">☰</button>
+      <div class="nav-links" id="navLinks">
+        <a href="dashboard.html">🏠 Início</a>
+        <a href="apoio.html">💚 Apoio</a>
+        <a href="quiz.html">🎯 Quiz</a>
+        <a href="chat.html">💬 Chat</a>
+        <a href="conteudo.html">📚 Conteúdo</a>
+      </div>
+      <div class="nav-actions">
+        <button class="theme-toggle" id="themeToggle" title="Alternar tema">🌙</button>
+        <div class="user-avatar" id="userAvatar">?</div>
+        <button class="btn-logout" id="btnLogout">Sair</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container">
+
+    <div class="page-header fade-in">
+      <div class="sos-hero">
+        <span class="sos-hero-icon">🆘</span>
+        <div>
+          <h2>SOS Digital</h2>
+          <p>Se você está em uma situação de crise ou urgência, aqui estão os recursos disponíveis para você. <strong>Você não está sozinho(a).</strong></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- APOIO EMOCIONAL IMEDIATO -->
+    <section class="sos-section fade-in">
+      <h3 class="sos-section-title">💜 Apoio Emocional Imediato</h3>
+      <div class="sos-grid">
+        <div class="sos-card-item sos-urgente">
+          <div class="sos-card-icon">📞</div>
+          <div class="sos-card-body">
+            <strong>CVV – Centro de Valorização da Vida</strong>
+            <p>Ligação gratuita, 24 horas, todos os dias. Para quem está em sofrimento emocional ou pensando em suicídio.</p>
+            <a href="tel:188" class="sos-btn">Ligar 188</a>
+          </div>
+        </div>
+        <div class="sos-card-item">
+          <div class="sos-card-icon">💬</div>
+          <div class="sos-card-body">
+            <strong>CVV Online</strong>
+            <p>Atendimento por chat e e-mail, disponível no site oficial do CVV.</p>
+            <span class="sos-info">cvv.org.br</span>
+          </div>
+        </div>
+        <div class="sos-card-item">
+          <div class="sos-card-icon">🧠</div>
+          <div class="sos-card-body">
+            <strong>Converse com nossa equipe</strong>
+            <p>Os estagiários de psicologia deste serviço estão disponíveis para te ouvir.</p>
+            <a href="chat.html" class="sos-btn sos-btn-primary">Abrir Chat</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIOLÊNCIA E DENÚNCIA -->
+    <section class="sos-section fade-in">
+      <h3 class="sos-section-title">🚨 Violência Online e Denúncia</h3>
+      <div class="sos-grid">
+        <div class="sos-card-item">
+          <div class="sos-card-icon">🛡️</div>
+          <div class="sos-card-body">
+            <strong>SaferNet Brasil</strong>
+            <p>Denuncie crimes na internet: cyberbullying, pedofilia, imagens íntimas, discurso de ódio.</p>
+            <span class="sos-info">safernet.org.br</span>
+          </div>
+        </div>
+        <div class="sos-card-item">
+          <div class="sos-card-icon">👮</div>
+          <div class="sos-card-body">
+            <strong>Delegacia Virtual</strong>
+            <p>Registre boletim de ocorrência online por crimes digitais (disponível em vários estados).</p>
+            <span class="sos-info">delegaciaonline.pc.sp.gov.br (SP) ou equivalente do seu estado</span>
+          </div>
+        </div>
+        <div class="sos-card-item">
+          <div class="sos-card-icon">⚖️</div>
+          <div class="sos-card-body">
+            <strong>Ligue 180 – Central da Mulher</strong>
+            <p>Para violência de gênero, incluindo violência digital. Gratuito e sigiloso.</p>
+            <a href="tel:180" class="sos-btn">Ligar 180</a>
+          </div>
+        </div>
+        <div class="sos-card-item">
+          <div class="sos-card-icon">🧒</div>
+          <div class="sos-card-body">
+            <strong>Ligue 100 – Direitos Humanos</strong>
+            <p>Para situações de violação dos direitos de crianças e adolescentes.</p>
+            <a href="tel:100" class="sos-btn">Ligar 100</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- IMAGENS ÍNTIMAS -->
+    <section class="sos-section fade-in sos-section-alert">
+      <h3 class="sos-section-title">🔒 Imagens Íntimas sem Consentimento</h3>
+      <p class="sos-section-desc">Se alguém compartilhou imagens suas sem a sua permissão, saiba: <strong>isso é crime</strong> (Lei 13.718/2018). Você não tem culpa. Aqui está o que fazer:</p>
+      <ol class="sos-steps">
+        <li><strong>Não se culpe.</strong> A responsabilidade é inteiramente de quem divulgou.</li>
+        <li><strong>Documente as evidências.</strong> Tire prints das publicações, URLs e perfis antes de denunciar.</li>
+        <li><strong>Solicite a remoção</strong> diretamente nas plataformas (Instagram, WhatsApp, TikTok possuem formulários específicos).</li>
+        <li><strong>Registre um boletim de ocorrência</strong> na delegacia presencial ou virtual.</li>
+        <li><strong>Busque apoio emocional.</strong> Este processo é difícil — fale com um de nossos especialistas.</li>
+      </ol>
+      <a href="chat.html" class="btn btn-primary" style="margin-top:12px;">Falar com um Especialista</a>
+    </section>
+
+    <!-- COMO DENUNCIAR NAS PLATAFORMAS -->
+    <section class="sos-section fade-in">
+      <h3 class="sos-section-title">📱 Como Denunciar nas Redes Sociais</h3>
+      <div class="plataforma-grid">
+        <div class="plataforma-item">
+          <strong>Instagram</strong>
+          <p>Toque nos 3 pontos no post → "Denunciar" → escolha o motivo</p>
+        </div>
+        <div class="plataforma-item">
+          <strong>WhatsApp</strong>
+          <p>Toque no contato → "Denunciar" ou bloqueie em Configurações</p>
+        </div>
+        <div class="plataforma-item">
+          <strong>TikTok</strong>
+          <p>Toque e segure o vídeo → "Reportar" → escolha o motivo</p>
+        </div>
+        <div class="plataforma-item">
+          <strong>YouTube</strong>
+          <p>Três pontos no vídeo → "Denunciar" → escolha o motivo</p>
+        </div>
+        <div class="plataforma-item">
+          <strong>Twitter/X</strong>
+          <p>Três pontos no tweet → "Denunciar tweet" → escolha o motivo</p>
+        </div>
+        <div class="plataforma-item">
+          <strong>Facebook</strong>
+          <p>Três pontos na publicação → "Encontrar suporte ou denunciar"</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script type="module" src="../js/firebase-config.js"></script>
+  <script type="module" src="../js/sos.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('../sw.js');
+    }
+  </script>
+</body>
+</html>

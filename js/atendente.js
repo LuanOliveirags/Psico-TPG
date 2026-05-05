@@ -2,7 +2,7 @@
 import { auth, db } from './firebase-config.js';
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import {
-  doc, getDoc, getDocs, addDoc, updateDoc, collection,
+  doc, getDoc, getDocs, addDoc, updateDoc, setDoc, collection,
   query, where, orderBy, onSnapshot, serverTimestamp,
   arrayUnion, arrayRemove
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -40,6 +40,8 @@ onAuthStateChanged(auth, async (user) => {
   listenToQueue();
   setupGroupModal();
   setupMembersModal();
+  setupSessionNotes();
+  setupTabs();
 });
 
 // ===== SHARED: Theme, Hamburger, Logout =====
@@ -174,6 +176,7 @@ function removeRoomEntry(roomId) {
     displayedRoomId = null;
     atendenteChat.style.display = 'none';
     chatPlaceholder.style.display = 'flex';
+    setChatFullscreen(false);
   }
 }
 
@@ -224,6 +227,24 @@ function renderActiveRoomList() {
   });
 }
 
+// ===== ABAS DO PAINEL =====
+function setupTabs() {
+  document.querySelectorAll('.painel-tab').forEach(btn => {
+    btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+  });
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.painel-tab').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.painel-tab-content').forEach(c => c.style.display = 'none');
+
+  document.querySelector(`.painel-tab[data-tab="${tab}"]`)?.classList.add('active');
+  document.getElementById(`tab${tab.charAt(0).toUpperCase() + tab.slice(1)}`)?.style.setProperty('display', 'flex');
+
+  if (tab === 'notas' && displayedRoomId) loadNotes(displayedRoomId);
+  if (tab === 'triagem' && displayedRoomId) loadTriagemCompleta(displayedRoomId);
+}
+
 // ===== TROCAR SALA EXIBIDA =====
 function switchToRoom(roomId) {
   displayedRoomId = roomId;
@@ -234,21 +255,38 @@ function switchToRoom(roomId) {
   const isGroup = data.type === 'group';
   chatPlaceholder.style.display = 'none';
   atendenteChat.style.display = 'flex';
-  chatUserName.textContent = isGroup ? (data.groupName || 'Grupo') : (data.userName || 'Usuário');
+
+  const label = isGroup ? (data.groupName || 'Grupo') : (data.userName || 'Usuário');
+  chatUserName.textContent = label;
   chatRoomStatus.textContent = isGroup ? 'Sala de Grupo' : 'Ativo';
+
+  // Avatar
+  const avatarEl = document.getElementById('chatHeaderAvatar');
+  if (avatarEl) avatarEl.textContent = label.charAt(0).toUpperCase();
 
   // Botão de membros: visível apenas em grupos
   const btnManageMembers = document.getElementById('btnManageMembers');
   const membersCountEl = document.getElementById('membersCount');
   if (btnManageMembers) {
     btnManageMembers.style.display = isGroup ? '' : 'none';
-    if (isGroup && membersCountEl) {
-      membersCountEl.textContent = (data.members || []).length;
-    }
+    if (isGroup && membersCountEl) membersCountEl.textContent = (data.members || []).length;
+  }
+
+  // Resetar para aba Chat
+  switchTab('chat');
+
+  // No mobile: esconde a sidebar e mostra só o chat
+  if (window.innerWidth <= 768) {
+    document.getElementById('atendenteSidebar')?.style.setProperty('display', 'none');
+    const btnVoltar = document.getElementById('btnVoltarSidebar');
+    const btnToggle = document.getElementById('btnToggleSidebar');
+    const titulo = document.getElementById('especialistaTitulo');
+    if (btnVoltar) btnVoltar.style.display = 'flex';
+    if (btnToggle) btnToggle.style.display = 'none';
+    if (titulo) titulo.style.display = 'none';
   }
 
   atendenteChatMessages.innerHTML = '';
-
   const greeting = isGroup
     ? `Sala de grupo: ${escapeHtml(data.groupName || 'Grupo')}`
     : `Você está conversando com ${escapeHtml(data.userName || 'Usuário')}`;
@@ -271,6 +309,137 @@ function switchToRoom(roomId) {
   });
 
   renderActiveRoomList();
+}
+
+// ===== CARREGAR TRIAGEM COMPLETA =====
+async function loadTriagemCompleta(roomId) {
+  const content = document.getElementById('triagemContent');
+  const loading = document.getElementById('triagemLoading');
+  if (!content || !loading) return;
+
+  content.style.display = 'none';
+  loading.style.display = 'flex';
+
+  const entry = openRooms.get(roomId);
+  const userId = entry?.data?.userId;
+
+  if (!userId || entry?.data?.type === 'group') {
+    loading.style.display = 'none';
+    content.style.display = 'block';
+    content.innerHTML = `<div class="triagem-empty"><span>👥</span><p>Triagem individual não disponível para salas de grupo.</p></div>`;
+    return;
+  }
+
+  try {
+    const snap = await getDoc(doc(db, 'triagem', userId));
+    loading.style.display = 'none';
+    content.style.display = 'block';
+
+    if (!snap.exists()) {
+      content.innerHTML = `<div class="triagem-empty"><span>📋</span><p>Este usuário ainda não respondeu ao questionário de triagem.</p></div>`;
+      return;
+    }
+
+    const d = snap.data();
+    const prioridade = d.prioridade || 'baixa';
+    const prioLabels = { alta: '🔴 Prioridade Alta', media: '🟡 Prioridade Média', baixa: '🟢 Prioridade Baixa' };
+    const prioClasses = { alta: 'prioridade-alta', media: 'prioridade-media', baixa: 'prioridade-baixa' };
+
+    const motivoLabels = {
+      cyberbullying: 'Cyberbullying', imagem: 'Imagens sem consentimento',
+      autoestima: 'Autoestima / comparação nas redes', ansiedade: 'Ansiedade / tristeza digital',
+      perseguicao: 'Perseguição online', limites: 'Dificuldade com limites digitais', outro: 'Outro'
+    };
+    const expectativaLabels = {
+      conversar: 'Ser ouvido(a)', informacao: 'Informações sobre direitos digitais',
+      grupo: 'Grupos com outros adolescentes', tecnicas: 'Técnicas para ansiedade/autoestima',
+      encaminhar: 'Encaminhamento para outros serviços'
+    };
+    const privacidadeLabels = {
+      sim: 'Sim, tem espaço reservado', as_vezes: 'Às vezes', nao: 'Não — espaço compartilhado/barulhento'
+    };
+    const internetLabels = {
+      boa: 'Boa e estável', instavel: 'Instável', dados: 'Só dados móveis', ruim: 'Ruim / sem acesso confiável'
+    };
+    const familiaLabels = {
+      sim_apoia: 'Sim, e apoiam', sim_nao_apoia: 'Sabe, mas não leva a sério',
+      nao_sabe: 'Não sabe', nao_quero: 'Prefere que não saiba por enquanto'
+    };
+    const confiancaLabels = { sim: 'Sim', talvez: 'Talvez, mas é difícil falar', nao: 'Não se sente à vontade' };
+    const emocaoLabels = {
+      bem: 'Está bem, quer só se informar', oscilando: 'Oscilando — às vezes bem, às vezes mal',
+      mal: 'Sentindo-se mal com frequência', muito_mal: 'Sentindo-se muito mal — precisa de apoio urgente'
+    };
+    const autolesaoLabels = { nao: 'Não', pensamentos: 'Teve pensamentos, mas não agiu', sim: 'Sim' };
+
+    const dataStr = d.data?.toDate ? d.data.toDate().toLocaleDateString('pt-BR') : '—';
+
+    content.innerHTML = `
+      <div class="triagem-view-header">
+        <span class="notes-prioridade ${prioClasses[prioridade]}">${prioLabels[prioridade]}</span>
+        <span class="triagem-data">Respondida em ${dataStr}</span>
+      </div>
+
+      <div class="triagem-view-body">
+        <div class="triagem-view-section">
+          <h4>Motivos da busca</h4>
+          <div class="triagem-tags">
+            ${(d.motivos || []).map(m => `<span class="triagem-tag">${motivoLabels[m] || m}</span>`).join('') || '<span class="triagem-vazio">Não informado</span>'}
+          </div>
+        </div>
+
+        <div class="triagem-view-row">
+          <div class="triagem-view-item">
+            <span class="triagem-item-label">Espaço com privacidade</span>
+            <span class="triagem-item-valor ${d.privacidade === 'nao' ? 'valor-alerta' : ''}">${privacidadeLabels[d.privacidade] || '—'}</span>
+          </div>
+          <div class="triagem-view-item">
+            <span class="triagem-item-label">Qualidade da internet</span>
+            <span class="triagem-item-valor ${(d.internet === 'ruim' || d.internet === 'dados') ? 'valor-alerta' : ''}">${internetLabels[d.internet] || '—'}</span>
+          </div>
+        </div>
+
+        <div class="triagem-view-row">
+          <div class="triagem-view-item">
+            <span class="triagem-item-label">Família sabe do atendimento</span>
+            <span class="triagem-item-valor">${familiaLabels[d.familia] || '—'}</span>
+          </div>
+          <div class="triagem-view-item">
+            <span class="triagem-item-label">Pessoa de confiança</span>
+            <span class="triagem-item-valor">${confiancaLabels[d.confianca] || '—'}</span>
+          </div>
+        </div>
+
+        <div class="triagem-view-section">
+          <h4>Estado emocional esta semana</h4>
+          <span class="triagem-item-valor ${d.emocaoSemana === 'muito_mal' ? 'valor-urgente' : d.emocaoSemana === 'mal' ? 'valor-alerta' : ''}">${emocaoLabels[d.emocaoSemana] || '—'}</span>
+        </div>
+
+        <div class="triagem-view-section">
+          <h4>Pensamentos de autolesão</h4>
+          <span class="triagem-item-valor ${d.autolesao === 'sim' ? 'valor-urgente' : d.autolesao === 'pensamentos' ? 'valor-alerta' : ''}">${autolesaoLabels[d.autolesao] || '—'}</span>
+        </div>
+
+        <div class="triagem-view-section">
+          <h4>O que espera do serviço</h4>
+          <div class="triagem-tags">
+            ${(d.expectativas || []).map(e => `<span class="triagem-tag">${expectativaLabels[e] || e}</span>`).join('') || '<span class="triagem-vazio">Não informado</span>'}
+          </div>
+        </div>
+
+        ${d.comentario ? `
+        <div class="triagem-view-section">
+          <h4>Comentário livre</h4>
+          <p class="triagem-comentario">${escapeHtml(d.comentario)}</p>
+        </div>` : ''}
+      </div>
+    `;
+  } catch (err) {
+    console.error('Erro ao carregar triagem:', err);
+    loading.style.display = 'none';
+    content.style.display = 'block';
+    content.innerHTML = `<div class="triagem-empty"><span>⚠️</span><p>Erro ao carregar os dados da triagem.</p></div>`;
+  }
 }
 
 // ===== OUVIR FILA DE ESPERA EM TEMPO REAL =====
@@ -765,6 +934,86 @@ async function createGroupRoom() {
   }
 }
 
+// ===== ANOTAÇÕES DE SESSÃO =====
+function setupSessionNotes() {
+  const btnSave = document.getElementById('btnSaveNotes');
+  if (btnSave) btnSave.addEventListener('click', () => saveNotes(displayedRoomId));
+}
+
+async function loadNotes(roomId) {
+  if (!roomId) return;
+  try {
+    const snap = await getDoc(doc(db, 'sessionNotes', roomId));
+    if (!snap.exists()) {
+      // Carregar prioridade da triagem do usuário
+      await loadTriagemPrioridade(roomId);
+      return;
+    }
+    const data = snap.data();
+    const presEl = document.getElementById('notesPresenca');
+    const condEl = document.getElementById('notesCondicoes');
+    const textoEl = document.getElementById('notesTexto');
+    const proximaEl = document.getElementById('notesProximaSessao');
+
+    if (presEl) presEl.value = data.presenca || '';
+    if (condEl) condEl.value = data.condicoes || '';
+    if (textoEl) textoEl.value = data.texto || '';
+    if (proximaEl) proximaEl.value = data.proximaSessao || '';
+
+    // Restaurar checkboxes de temas
+    const temas = data.temas || [];
+    document.querySelectorAll('#notesTemasWrap input[type="checkbox"]').forEach(cb => {
+      cb.checked = temas.includes(cb.value);
+    });
+
+    await loadTriagemPrioridade(roomId);
+  } catch (err) {
+    console.error('Erro ao carregar notas:', err);
+  }
+}
+
+async function loadTriagemPrioridade(roomId) {
+  const entry = openRooms.get(roomId);
+  if (!entry) return;
+  const userId = entry.data?.userId;
+  if (!userId) return;
+  try {
+    const triagemSnap = await getDoc(doc(db, 'triagem', userId));
+    const prioEl = document.getElementById('notesPrioridade');
+    if (prioEl && triagemSnap.exists()) {
+      const prioridade = triagemSnap.data().prioridade || 'baixa';
+      const labels = { alta: '🔴 Prioridade Alta', media: '🟡 Prioridade Média', baixa: '🟢 Prioridade Baixa' };
+      const classes = { alta: 'prioridade-alta', media: 'prioridade-media', baixa: 'prioridade-baixa' };
+      prioEl.textContent = labels[prioridade] || '';
+      prioEl.className = `notes-prioridade ${classes[prioridade] || ''}`;
+    }
+  } catch { /* silenciar */ }
+}
+
+async function saveNotes(roomId) {
+  if (!roomId) { showToast('Selecione um atendimento primeiro', 'error'); return; }
+
+  const temas = [...document.querySelectorAll('#notesTemasWrap input[type="checkbox"]:checked')].map(cb => cb.value);
+  const data = {
+    roomId,
+    atendenteId: currentUser.uid,
+    presenca: document.getElementById('notesPresenca')?.value || '',
+    condicoes: document.getElementById('notesCondicoes')?.value || '',
+    temas,
+    texto: document.getElementById('notesTexto')?.value.trim() || '',
+    proximaSessao: document.getElementById('notesProximaSessao')?.value || '',
+    atualizadoEm: serverTimestamp()
+  };
+
+  try {
+    await setDoc(doc(db, 'sessionNotes', roomId), data, { merge: true });
+    showToast('Anotações salvas!', 'success');
+  } catch (err) {
+    console.error('Erro ao salvar notas:', err);
+    showToast('Erro ao salvar anotações', 'error');
+  }
+}
+
 // ===== TOAST =====
 function showToast(msg, type = 'success') {
   const toast = document.getElementById('toast');
@@ -795,3 +1044,73 @@ if (atendenteInput) {
 if (btnCloseRoom) {
   btnCloseRoom.addEventListener('click', () => confirmCloseRoom(displayedRoomId));
 }
+
+// ===== TOGGLE SIDEBAR (DESKTOP) =====
+const btnToggleSidebar = document.getElementById('btnToggleSidebar');
+const atendenteSidebar = document.getElementById('atendenteSidebar');
+const atendenteLayout = document.getElementById('atendenteLayout');
+
+function syncSidebarToggleLabel() {
+  const isHidden = atendenteLayout.classList.contains('sidebar-hidden');
+  if (btnToggleSidebar) {
+    btnToggleSidebar.textContent = isHidden ? '▶ Expandir' : '◀ Recolher';
+    btnToggleSidebar.title = isHidden ? 'Mostrar painel' : 'Recolher painel';
+  }
+  const btnExpand = document.getElementById('btnExpandChat');
+  if (btnExpand) {
+    btnExpand.textContent = isHidden ? '⤡' : '⤢';
+    btnExpand.title = isHidden ? 'Recolher chat' : 'Expandir chat';
+    btnExpand.classList.toggle('expanded', isHidden);
+  }
+}
+
+if (btnToggleSidebar && atendenteSidebar) {
+  btnToggleSidebar.addEventListener('click', () => {
+    atendenteLayout.classList.toggle('sidebar-hidden');
+    syncSidebarToggleLabel();
+  });
+}
+
+// ===== EXPANDIR CHAT — MODO TELA CHEIA =====
+function setChatFullscreen(on) {
+  const chat = document.getElementById('atendenteChat');
+  const btn  = document.getElementById('btnExpandChat');
+  if (!chat || !btn) return;
+  chat.classList.toggle('chat-fullscreen', on);
+  btn.textContent = on ? '⤡' : '⤢';
+  btn.title = on ? 'Sair da tela cheia' : 'Expandir chat';
+  btn.classList.toggle('expanded', on);
+  // impede scroll do body enquanto fullscreen
+  document.body.style.overflow = on ? 'hidden' : '';
+}
+
+document.getElementById('btnExpandChat')?.addEventListener('click', () => {
+  const isNowFull = !document.getElementById('atendenteChat').classList.contains('chat-fullscreen');
+  setChatFullscreen(isNowFull);
+});
+
+// ESC fecha o fullscreen
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') setChatFullscreen(false);
+});
+
+// ===== MOBILE: mostrar/esconder sidebar ao abrir conversa =====
+export function showChatMobile() {
+  const isMobile = window.innerWidth <= 768;
+  if (!isMobile) return;
+  document.getElementById('atendenteSidebar')?.style.setProperty('display', 'none');
+  document.getElementById('btnVoltarSidebar').style.display = 'flex';
+  document.getElementById('btnToggleSidebar').style.display = 'none';
+  document.getElementById('especialistaTitulo').style.display = 'none';
+}
+
+document.getElementById('btnVoltarSidebar')?.addEventListener('click', () => {
+  document.getElementById('atendenteSidebar').style.display = '';
+  document.getElementById('atendenteChat').style.display = 'none';
+  document.getElementById('chatPlaceholder').style.display = 'flex';
+  document.getElementById('btnVoltarSidebar').style.display = 'none';
+  document.getElementById('btnToggleSidebar').style.display = '';
+  document.getElementById('especialistaTitulo').style.display = '';
+  setChatFullscreen(false);
+  displayedRoomId = null;
+});

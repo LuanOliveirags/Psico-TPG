@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conexão Consciente - Triagem Inicial</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="manifest" href="../manifest.json">
+  <meta name="theme-color" content="#6C63FF">
+</head>
+<body class="triagem-body">
+
+  <!-- HEADER SIMPLES -->
+  <header class="triagem-header">
+    <div class="brand">
+      <span>🧠</span> Conexão Consciente
+    </div>
+    <p>Questionário de Acolhimento Inicial</p>
+  </header>
+
+  <main class="triagem-main">
+
+    <!-- AVISO IMPORTANTE -->
+    <div class="triagem-aviso-wrap">
+
+      <div class="triagem-aviso triagem-aviso-destaque">
+        <span class="aviso-icone">📋</span>
+        <div>
+          <strong>O que é este questionário?</strong>
+          <p>Este é o seu <strong>acolhimento inicial</strong>. As respostas ajudam os <strong>estagiários de Psicologia</strong> a entender sua situação antes do primeiro atendimento, para que o suporte seja mais adequado a você.</p>
+        </div>
+      </div>
+
+      <div class="triagem-aviso triagem-aviso-importante">
+        <span class="aviso-icone">🔒</span>
+        <div>
+          <strong>Importante: suas respostas são confidenciais</strong>
+          <p>Somente os <strong>estagiários supervisores</strong> deste serviço têm acesso. Nenhuma informação é compartilhada com sua família, escola ou qualquer pessoa fora da equipe sem o seu consentimento.</p>
+        </div>
+      </div>
+
+      <div class="triagem-aviso triagem-aviso-info">
+        <span class="aviso-icone">⏱️</span>
+        <div>
+          <strong>Leva menos de 3 minutos</strong>
+          <p>São 5 etapas curtas. Responda com honestidade — não existe resposta certa ou errada. Quanto mais sincero(a) você for, melhor conseguimos te ajudar.</p>
+        </div>
+      </div>
+
+      <div class="triagem-aviso triagem-aviso-crise">
+        <span class="aviso-icone">🆘</span>
+        <div>
+          <strong>Está em crise agora?</strong>
+          <p>Se precisar de ajuda imediata, ligue para o <strong>CVV: 188</strong> (gratuito, 24h) ou <a href="sos.html" style="color:var(--danger);font-weight:600;">acesse nossa página SOS</a> antes de continuar.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- BARRA DE PROGRESSO -->
+    <div class="triagem-progress-wrap">
+      <div class="triagem-progress-bar" id="triagemProgressBar" style="width:0%"></div>
+    </div>
+    <p class="triagem-step-label" id="triagemStepLabel">Etapa 1 de 5</p>
+
+    <!-- FORMULÁRIO -->
+    <div class="triagem-card" id="triagemCard">
+
+      <!-- ETAPA 1: Boas-vindas / Motivo -->
+      <div class="triagem-step active" id="step1">
+        <div class="triagem-icon">👋</div>
+        <h2>Olá! Que bom ter você aqui.</h2>
+        <p>Antes de começar, gostaríamos de entender um pouco mais sobre você. Suas respostas são confidenciais e ajudam os estagiários a oferecerem o melhor suporte.</p>
+        <label class="triagem-label">O que te trouxe ao Conexão Consciente? <span class="required">*</span></label>
+        <div class="triagem-check-group" id="motivoGroup">
+          <label class="triagem-check-item">
+            <input type="checkbox" name="motivo" value="cyberbullying"> Estou sofrendo ou sofri cyberbullying
+          </label>
+          <label class="triagem-check-item">
+            <input type="checkbox" name="motivo" value="imagem"> Tiveram imagens minhas compartilhadas sem minha permissão
+          </label>
+          <label class="triagem-check-item">
+            <input type="checkbox" name="motivo" value="autoestima"> Estou me sentindo mal com minha aparência ou comparações nas redes
+          </label>
+          <label class="triagem-check-item">
+            <input type="checkbox" name="motivo" value="ansiedade"> Sinto ansiedade, tristeza ou estresse relacionados ao ambiente digital
+          </label>
+          <label class="triagem-check-item">
+            <input type="checkbox" name="motivo" value="perseguicao"> Estou sendo assediado(a) ou perseguido(a) online
+          </label>
+          <label class="triagem-check-item">
+            <input type="checkbox" name="motivo" value="limites"> Tenho dificuldade de estabelecer limites nas interações digitais
+          </label>
+          <label class="triagem-check-item">
+            <input type="checkbox" name="motivo" value="outro"> Outro motivo
+          </label>
+        </div>
+      </div>
+
+      <!-- ETAPA 2: Condições de acesso -->
+      <div class="triagem-step" id="step2">
+        <div class="triagem-icon">📱</div>
+        <h2>Suas condições de acesso</h2>
+        <p>Isso nos ajuda a entender como adaptar melhor o atendimento para você.</p>
+
+        <label class="triagem-label">Você tem um espaço com privacidade para participar das sessões? <span class="required">*</span></label>
+        <div class="triagem-radio-group" id="privacidadeGroup">
+          <label class="triagem-radio-item"><input type="radio" name="privacidade" value="sim"> Sim, tenho um quarto ou espaço reservado</label>
+          <label class="triagem-radio-item"><input type="radio" name="privacidade" value="as_vezes"> Às vezes, depende do dia</label>
+          <label class="triagem-radio-item"><input type="radio" name="privacidade" value="nao"> Não, o espaço costuma ser compartilhado ou barulhento</label>
+        </div>
+
+        <label class="triagem-label" style="margin-top:20px;">Como está sua conexão com a internet? <span class="required">*</span></label>
+        <div class="triagem-radio-group" id="internetGroup">
+          <label class="triagem-radio-item"><input type="radio" name="internet" value="boa"> Boa e estável</label>
+          <label class="triagem-radio-item"><input type="radio" name="internet" value="instavel"> Instável, cai às vezes</label>
+          <label class="triagem-radio-item"><input type="radio" name="internet" value="dados"> Uso só dados móveis (pode ser limitado)</label>
+          <label class="triagem-radio-item"><input type="radio" name="internet" value="ruim"> Ruim ou sem acesso confiável</label>
+        </div>
+      </div>
+
+      <!-- ETAPA 3: Suporte familiar -->
+      <div class="triagem-step" id="step3">
+        <div class="triagem-icon">👨‍👩‍👧</div>
+        <h2>Rede de apoio</h2>
+        <p>Entender o seu contexto familiar ajuda a equipe a oferecer um suporte mais adequado.</p>
+
+        <label class="triagem-label">Sua família sabe que você está buscando apoio psicológico online? <span class="required">*</span></label>
+        <div class="triagem-radio-group" id="familiaGroup">
+          <label class="triagem-radio-item"><input type="radio" name="familia" value="sim_apoia"> Sim, e apoiam</label>
+          <label class="triagem-radio-item"><input type="radio" name="familia" value="sim_nao_apoia"> Sim, mas não levam muito a sério</label>
+          <label class="triagem-radio-item"><input type="radio" name="familia" value="nao_sabe"> Não, não sabem</label>
+          <label class="triagem-radio-item"><input type="radio" name="familia" value="nao_quero"> Prefiro que não saibam por agora</label>
+        </div>
+
+        <label class="triagem-label" style="margin-top:20px;">Você tem alguma pessoa de confiança (familiar, amigo, professor) com quem conversar sobre suas dificuldades?</label>
+        <div class="triagem-radio-group" id="confiancaGroup">
+          <label class="triagem-radio-item"><input type="radio" name="confianca" value="sim"> Sim</label>
+          <label class="triagem-radio-item"><input type="radio" name="confianca" value="talvez"> Talvez, mas é difícil falar sobre isso</label>
+          <label class="triagem-radio-item"><input type="radio" name="confianca" value="nao"> Não me sinto à vontade com ninguém</label>
+        </div>
+      </div>
+
+      <!-- ETAPA 4: Sintomas e urgência -->
+      <div class="triagem-step" id="step4">
+        <div class="triagem-icon">💭</div>
+        <h2>Como você está se sentindo?</h2>
+        <p>Suas respostas são totalmente confidenciais. Seja honesto(a) — só queremos ajudar.</p>
+
+        <label class="triagem-label">Nos últimos 7 dias, como tem sido sua semana emocionalmente? <span class="required">*</span></label>
+        <div class="triagem-radio-group" id="emocaoSemanaGroup">
+          <label class="triagem-radio-item"><input type="radio" name="emocaoSemana" value="bem"> Estou bem, só quero me informar</label>
+          <label class="triagem-radio-item"><input type="radio" name="emocaoSemana" value="oscilando"> Oscilando — às vezes bem, às vezes mal</label>
+          <label class="triagem-radio-item"><input type="radio" name="emocaoSemana" value="mal"> Estou me sentindo mal com frequência</label>
+          <label class="triagem-radio-item"><input type="radio" name="emocaoSemana" value="muito_mal"> Estou me sentindo muito mal e preciso de apoio urgente</label>
+        </div>
+
+        <label class="triagem-label" style="margin-top:20px;">Você já pensou em se machucar ou machucou a si mesmo(a)? <span class="required">*</span></label>
+        <div class="triagem-radio-group" id="autolesaoGroup">
+          <label class="triagem-radio-item"><input type="radio" name="autolesao" value="nao"> Não</label>
+          <label class="triagem-radio-item"><input type="radio" name="autolesao" value="pensamentos"> Tive pensamentos, mas não agi</label>
+          <label class="triagem-radio-item"><input type="radio" name="autolesao" value="sim"> Sim</label>
+        </div>
+
+        <!-- Alerta de crise (aparece condicionalmente via JS) -->
+        <div class="triagem-alerta" id="alertaCrise" style="display:none;">
+          <strong>Você não está sozinho(a).</strong> Se precisar de ajuda imediata, entre em contato com o <strong>CVV: 188</strong> (24h, gratuito) ou acesse <strong>cvv.org.br</strong>. Nossa equipe também está aqui para você.
+        </div>
+      </div>
+
+      <!-- ETAPA 5: Expectativas -->
+      <div class="triagem-step" id="step5">
+        <div class="triagem-icon">🌟</div>
+        <h2>Quase lá!</h2>
+        <p>Uma última pergunta para que possamos te apoiar melhor.</p>
+
+        <label class="triagem-label">O que você espera encontrar no Conexão Consciente? <span class="required">*</span></label>
+        <div class="triagem-check-group" id="expectativaGroup">
+          <label class="triagem-check-item">
+            <input type="checkbox" name="expectativa" value="conversar"> Alguém para conversar e ser ouvido(a)
+          </label>
+          <label class="triagem-check-item">
+            <input type="checkbox" name="expectativa" value="informacao"> Informações sobre segurança digital e direitos
+          </label>
+          <label class="triagem-check-item">
+            <input type="checkbox" name="expectativa" value="grupo"> Participar de grupos com outros adolescentes
+          </label>
+          <label class="triagem-check-item">
+            <input type="checkbox" name="expectativa" value="tecnicas"> Técnicas para lidar com ansiedade e autoestima
+          </label>
+          <label class="triagem-check-item">
+            <input type="checkbox" name="expectativa" value="encaminhar"> Ser encaminhado(a) para outros serviços se precisar
+          </label>
+        </div>
+
+        <label class="triagem-label" style="margin-top:20px;">Tem algo mais que queira compartilhar com a equipe? (opcional)</label>
+        <textarea class="triagem-textarea" id="comentarioLivre" placeholder="Escreva aqui o que quiser..." rows="3" maxlength="500"></textarea>
+      </div>
+
+    </div>
+
+    <!-- BOTÕES DE NAVEGAÇÃO -->
+    <div class="triagem-nav">
+      <button class="btn btn-outline" id="btnTriagemBack" style="display:none;">← Voltar</button>
+      <button class="btn btn-primary" id="btnTriagemNext">Continuar →</button>
+    </div>
+
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script type="module" src="../js/firebase-config.js"></script>
+  <script type="module" src="../js/triagem.js"></script>
+</body>
+</html>
