@@ -53,9 +53,21 @@ if (themeToggle) {
 const hamburger = document.getElementById('hamburger');
 const navLinks = document.getElementById('navLinks');
 if (hamburger && navLinks) {
+  const backdrop = Object.assign(document.createElement('div'), { className: 'nav-backdrop' });
+  document.body.appendChild(backdrop);
+  const closeMenu = () => {
+    navLinks.classList.remove('open');
+    hamburger.classList.remove('open');
+    backdrop.classList.remove('active');
+    hamburger.textContent = '☰';
+  };
   hamburger.addEventListener('click', () => {
-    navLinks.classList.toggle('open');
+    const isOpen = navLinks.classList.toggle('open');
+    hamburger.classList.toggle('open', isOpen);
+    backdrop.classList.toggle('active', isOpen);
+    hamburger.textContent = isOpen ? '✕' : '☰';
   });
+  backdrop.addEventListener('click', closeMenu);
 }
 
 // ===== LOGOUT =====
