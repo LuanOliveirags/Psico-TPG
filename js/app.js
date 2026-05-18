@@ -184,6 +184,26 @@ async function initDashboard(user) {
     } catch { /* silenciar */ }
   }
 
+  // Mostrar modal de pesquisa se ainda não respondeu (usa localStorage para evitar depender de regras Firestore)
+  const pesquisaOverlay = document.getElementById('pesquisaOverlay');
+  if (pesquisaOverlay && !localStorage.getItem(`pesquisa_ok_${user.uid}`)) {
+    const closeModal = () => {
+      pesquisaOverlay.classList.remove('visible');
+      setTimeout(() => { pesquisaOverlay.style.display = 'none'; }, 280);
+    };
+
+    setTimeout(() => {
+      pesquisaOverlay.style.display = 'flex';
+      requestAnimationFrame(() => pesquisaOverlay.classList.add('visible'));
+    }, 1200);
+
+    document.getElementById('pesquisaClose')?.addEventListener('click', closeModal);
+    document.getElementById('pesquisaSkip')?.addEventListener('click', closeModal);
+    pesquisaOverlay.addEventListener('click', (e) => {
+      if (e.target === pesquisaOverlay) closeModal();
+    });
+  }
+
   // Carregar estatísticas
   await loadStats(user.uid);
 

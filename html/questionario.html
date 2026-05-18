@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conexão Consciente - Pesquisa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="manifest" href="../manifest.json">
+  <meta name="theme-color" content="#6C63FF">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="apple-touch-icon" href="../icons/icon-192.svg">
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="container">
+      <a href="dashboard.html" class="brand"><span>🧠</span> Conexão Consciente</a>
+      <button class="hamburger" id="hamburger">☰</button>
+      <div class="nav-links" id="navLinks">
+        <a href="dashboard.html">🏠 Início</a>
+        <a href="apoio.html">💚 Apoio</a>
+        <a href="quiz.html">🎯 Quiz</a>
+        <a href="chat.html">💬 Chat</a>
+        <a href="conteudo.html">📚 Conteúdo</a>
+        <div class="nav-actions">
+          <button class="theme-toggle" id="themeToggle" title="Alternar tema">🌙</button>
+          <div class="user-avatar" id="userAvatar">?</div>
+          <button class="btn-logout" id="btnLogout">Sair</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="q-hero" id="qHero">
+    <div class="container">
+      <span class="q-hero-badge" id="qHeroBadge">📋 Pesquisa</span>
+      <h1 id="qHeroTitle">Pesquisa de Experiência</h1>
+      <p id="qHeroSubtitle">Ajude-nos a entender melhor sua experiência</p>
+    </div>
+  </section>
+
+  <!-- LOADING -->
+  <div class="q-state" id="qLoading">
+    <div class="q-spinner"></div>
+    <p style="color:var(--text-light); margin-top:12px;">Carregando pesquisa...</p>
+  </div>
+
+  <!-- JÁ RESPONDEU -->
+  <div class="q-state" id="qDone" style="display:none;">
+    <div class="q-state-icon">✅</div>
+    <h2>Você já respondeu!</h2>
+    <p class="q-state-desc">Suas respostas já foram registradas e farão parte da nossa análise. Muito obrigado pela contribuição!</p>
+    <div class="q-done-tags" id="qDoneTags"></div>
+    <a href="dashboard.html" class="q-btn-back">← Voltar ao início</a>
+  </div>
+
+  <!-- QUESTIONÁRIO PRINCIPAL -->
+  <main class="q-main" id="qMain" style="display:none;">
+    <div class="container">
+
+      <div class="q-intro-card">
+        <h2 id="qMainTitle"></h2>
+        <p id="qMainDesc"></p>
+        <span class="q-tip-badge">☑️ Marque quantas opções quiser</span>
+      </div>
+
+      <div class="q-grid" id="qGrid"></div>
+
+      <div class="q-outro-wrap" id="qOutroWrap" style="display:none;">
+        <label class="q-outro-label">📝 Descreva sua outra dificuldade:</label>
+        <textarea class="q-outro-textarea" id="qOutroText" placeholder="Escreva aqui o que não está na lista..." rows="3"></textarea>
+      </div>
+
+      <!-- Botão de envio fixo no final da página (fallback sem JS do footer bar) -->
+      <div style="height:100px;"></div>
+    </div>
+  </main>
+
+  <!-- SUCESSO -->
+  <div class="q-state" id="qSuccess" style="display:none;">
+    <div class="q-confetti" aria-hidden="true">🎊 🌟 💜 🎉 ✨</div>
+    <div class="q-state-icon">🎉</div>
+    <h2>Respostas enviadas!</h2>
+    <p class="q-state-desc">Muito obrigado por participar desta pesquisa. Sua experiência é fundamental para continuarmos aprimorando o apoio psicológico oferecido.</p>
+    <a href="dashboard.html" class="q-btn-back">← Voltar ao início</a>
+  </div>
+
+  <!-- BARRA FLUTUANTE DE ENVIO -->
+  <div class="q-footer-bar" id="qFooterBar">
+    <span class="q-footer-count" id="qFooterCount">Nenhuma selecionada</span>
+    <button class="q-footer-btn" id="btnSubmitQ" disabled>Enviar respostas →</button>
+  </div>
+
+  <div class="toast" id="toast"></div>
+  <script type="module" src="../js/questionario.js"></script>
+</body>
+</html>
